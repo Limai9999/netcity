@@ -22,6 +22,7 @@ for (const fileName of commandsDir) {
 easyvk({
   token: config.vkToken,
   v: '5.131',
+  save: false,
   utils: {
     bots: true
   }
