@@ -1,0 +1,27 @@
+{
+  "devDependencies": {
+    "eslint": "^8.11.0",
+    "eslint-config-google": "^0.14.0"
+  },
+  "dependencies": {
+    "axios": "^0.26.1",
+    "crypto-js": "^4.1.1",
+    "easyvk": "^2.8.2",
+    "exceljs": "^4.3.0",
+    "moment": "^2.29.1",
+    "puppeteer": "^13.5.1",
+    "puppeteer-extra": "^3.2.3",
+    "puppeteer-extra-plugin-stealth": "^2.9.0",
+    "puppeteer-page-proxy": "^1.2.8",
+    "puppeteer-proxy": "^2.1.2"
+  },
+  "name": "new_netcity",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": ""
+}

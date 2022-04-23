@@ -1,0 +1,31 @@
+{
+  "decryptKey": "",
+  "vkToken": "",
+  "adminChatId": "2000000002",
+  "defaultKeyboard": {
+    "buttons": [
+      [
+        {
+          "action": {
+            "type": "text",
+            "label": "Получить расписание",
+            "payload": "{\"button\":\"getschedule\"}"
+          },
+          "color": "positive"
+        }
+      ],
+      [
+        {
+          "action": {
+            "type": "text",
+            "label": "Обновить расписание",
+            "payload": "{\"button\":\"updateschedule\"}"
+          },
+          "color": "negative"
+        }
+      ]
+    ],
+    "inline": false,
+    "one_time": false
+  }
+}
