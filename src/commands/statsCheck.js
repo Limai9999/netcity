@@ -1,6 +1,7 @@
 const sendMessage = require('../utils/sendMessage');
 
 const getUsernames = require('../utils/getUsernames');
+const getLastMessages = require('../utils/getLastMessages');
 
 const statistics = require('../data/statistics.json');
 
@@ -19,10 +20,7 @@ module.exports = {
 
       const getStatsOneGroup = async (group) => {
         const { messages, totalMessages, commandsExecuted, groupId } = group;
-        const fiveLastMsgs = messages.length >= msgTotal ? messages.slice(messages.length - msgTotal, messages.length).map(r => {
-          const userId = names.find(e => e.userId === r.userId).name || r.userId;
-          return `${userId}: ${r.message} ${r.payload ? `(payload - ${r.payload.button})`: ''}`.trim();
-        }) : [`< ${msgTotal} сообщений`];
+        const lastMsgs = getLastMessages(messages, msgTotal, names);
 
         const res = await vk.call('messages.getConversationsById', {
           peer_ids: groupId,
@@ -45,7 +43,7 @@ ID: ${groupId} (${title}) ${groupId === config.adminChatId ? '(admin-chat)' : ''
 Всего сообщений/сохранено в боте: ${totalMessages}/${messages.length}
 Использовано команд кнопками: ${commandsExecuted}
 
-Последние ${msgTotal} сообщений:\n${fiveLastMsgs.join('\n')}
+Последние ${msgTotal} сообщений:\n${lastMsgs.join('\n')}
       `);
       };
 
