@@ -1,55 +1,58 @@
-// const events = require('events');
-// const eventEmitter = new events.EventEmitter();
-
+/* eslint-disable no-inner-declarations */
 module.exports = (vk, stats) => {
   return new Promise(resolve => {
-    const userIds = [];
+    try {
+      const userIds = [];
 
-    splitGroups();
+      splitGroups();
 
-    function splitGroups() {
-      stats.map((r, i) => {
-        saveAllIds(r, i);
-      });
-    }
-
-    function saveAllIds(res, i) {
-      res.messages.map(r => {
-        if (userIds.find(e => e.userId === r.userId)) return;
-        userIds.push({
-          groupId: res.groupId,
-          userId: r.userId,
-          name: null
+      function splitGroups() {
+        stats.map((r, i) => {
+          saveAllIds(r, i);
         });
-      });
+      }
 
-      if (i + 1 >= stats.length) return pushToArr();
-    }
+      function saveAllIds(res, i) {
+        res.messages.map(r => {
+          if (userIds.find(e => e.userId === r.userId)) return;
+          userIds.push({
+            groupId: res.groupId,
+            userId: r.userId,
+            name: null
+          });
+        });
 
-    function pushToArr() {
-      const arr = [];
+        if (i + 1 >= stats.length) return pushToArr();
+      }
 
-      userIds.map(r => {
-        arr.push(r.userId);
-      });
+      function pushToArr() {
+        const arr = [];
 
-      findNamesForIds(arr.join(','));
-    }
+        userIds.map(r => {
+          arr.push(r.userId);
+        });
 
-    async function findNamesForIds(user_ids) {
-      const response = await vk.call('users.get', {
-        user_ids
-      });
+        findNamesForIds(arr.join(','));
+      }
 
-      const arrayRes = Array.from(response);
+      async function findNamesForIds(user_ids) {
+        const response = await vk.call('users.get', {
+          user_ids
+        });
 
-      arrayRes.map(r => {
-        const element = userIds.find(e => e.userId == r.id);
-        if (!element) return;
-        element.name = `${r.first_name} ${r.last_name}`;
-      });
+        const arrayRes = Array.from(response);
 
-      return resolve(userIds);
+        arrayRes.map(r => {
+          const element = userIds.find(e => e.userId == r.id);
+          if (!element) return;
+          element.name = `${r.first_name} ${r.last_name}`;
+        });
+
+        return resolve(userIds);
+      }
+    } catch (error) {
+      console.log('Ошибка при получении имён:', error);
+      return false;
     }
   });
 };

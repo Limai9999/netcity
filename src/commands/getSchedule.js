@@ -5,10 +5,10 @@ const moment = require('moment');
 const getSchedule = require('../modules/getSchedule');
 
 module.exports = {
-  name: 'рсп',
+  name: ['рсп', 'getschedule', 'updateschedule', 'allschedule', 'chooseoldschedule', 'chooseschedule'],
   description: 'получить расписание уроков',
   admin: false,
-  async execute(vk, config, Class, classes, message, args, groupId, userId, conversationMessageId, defaultKeyboard) {
+  async execute(vk, config, Class, classes, message, args, groupId, userId, conversationMessageId, defaultKeyboard, payload) {
     if (!groupId.startsWith('20000000')) return sendMessage('К глубочайшему сожалению, данная команда не может быть выполнена в личных сообщениях данной группы посредством социальной сети ВКонтакте.\n\nРаботает только в беседе.', groupId, {}, userId, null, 'dontdelete');
     if (!Class) return sendMessage('Класс не найден.\n\nДобавить: "класс <имя класса> <логин для сетевого города> <пароль>"\nПароль можно зашифровать в лс бота - "шифр <пароль>"', groupId, { defaultKeyboard }, userId, null, 'medium');
 
@@ -16,6 +16,16 @@ module.exports = {
       moment().format('DD.MM'),
       moment().format('D.MM')
     ];
+
+    if (payload) {
+      if (payload.button === 'chooseschedule') args[0] = payload.schedule;
+      if (payload.button === 'allschedule') args[0] = 'все';
+      if (payload.button === 'updateschedule') args[0] = '0';
+      if (payload.button === 'chooseoldschedule') {
+        args[0] = 'старое';
+        args[1] = payload.schedule;
+      }
+    }
 
     if (args[0] && args[0] !== '0' && args[0] !== 'все' && args[0] !== 'дистант' && args[0] !== 'старое') {
       if (!Class.schedule) return sendMessage('Расписание еще не получено. Напиши "рсп" (без номера файла) чтобы его получить.', groupId, { defaultKeyboard }, userId, null, 'low');
@@ -122,11 +132,11 @@ module.exports = {
         buttons: [
           [],
           [
-            { action: { type: 'text', label: 'Получить расписание', payload: '{"button":"getschedule"}' }, color: 'positive' },
+            { action: { type: 'text', label: 'Получить расписание', payload: JSON.stringify({ button: 'getschedule' }) }, color: 'positive' },
             // { action: { type: 'text', label: 'Расп. (дистант)', payload: '{"button":"getschedule_dist"}' }, color: 'positive' },
           ],
           [
-            { action: { type: 'text', label: 'Обновить расписание', payload: '{"button":"updateschedule"}' }, color: 'negative' }
+            { action: { type: 'text', label: 'Обновить расписание', payload: JSON.stringify({ button: 'updateschedule' }) }, color: 'negative' }
           ]
         ],
         inline: true
@@ -144,7 +154,7 @@ module.exports = {
 
       let filenames = await Promise.all(Class.schedule.map((r, i) => {
         if (r.old) return false;
-        keyboard.buttons[0].push({ action: { type: 'text', label: i + 1, payload: `{"button":"schedule-${i + 1}"}`}, color: 'secondary' });
+        keyboard.buttons[0].push({ action: { type: 'text', label: i + 1, payload: JSON.stringify({ button: 'chooseschedule', schedule: i + 1 }) }, color: 'secondary' });
         let result = `${i + 1} - ${r.filename}`.replace('.xlsx', '');
 
         if (!r.result || r.error) result += ' ⚠️';

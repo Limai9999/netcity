@@ -2,7 +2,7 @@
 const statistics = require('../data/statistics.json');
 const { writeFileSync } = require('fs');
 
-module.exports = ({command, groupId, msgId, userId, message, payload}) => {
+module.exports = ({command, groupId, msgId, userId, message, payload, attachments}) => {
   let groupElement = statistics.find(e => e.groupId === groupId);
 
   if (!groupElement) {
@@ -10,7 +10,7 @@ module.exports = ({command, groupId, msgId, userId, message, payload}) => {
     groupElement = statistics.find(e => e.groupId === groupId);
   }
 
-  groupElement.messages.push({ command, msgId, userId, message, payload: payload ? JSON.parse(payload) : false, date: Date.now() });
+  groupElement.messages.push({ command, msgId, userId, message, attachments, payload: payload ? JSON.parse(payload) : false, date: Date.now() });
   groupElement.totalMessages = msgId;
 
   if (payload) {

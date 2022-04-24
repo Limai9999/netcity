@@ -13,13 +13,16 @@ const sendMessage = require('./utils/sendMessage');
 const addStats = require('./modules/addStats');
 const startInterval = require('./modules/autoGetSchedule');
 
-const collection = new Map();
+// const collection = new Map();
 const commandsDir = fs.readdirSync('./src/commands')
     .filter(r => r.endsWith('.js'));
 
+const commands = [];
+
 for (const fileName of commandsDir) {
   const command = require(`./commands/${fileName}`);
-  collection.set(command.name, command);
+  // collection.set(command.name, command);
+  commands.push(command);
 }
 
 easyvk({
@@ -31,13 +34,14 @@ easyvk({
   }
 }).then(async (vk) => {
   const connection = await vk.bots.longpoll.connect();
-  vk.collection = collection;
+  vk.commands = commands;
   start(vk, connection);
 });
 
 function start(vk, connection) {
   connection.on('message_new', async ctx => {
-    let { payload, text, peer_id, from_id, conversation_message_id } = ctx.message;
+    console.log('ctx', ctx);
+    let { payload, text, peer_id, from_id, conversation_message_id, attachments } = ctx.message;
 
     const message = text.replace('[club202891784|@chechnyaltd]', '').trim();
     const groupId = peer_id.toString();
@@ -50,44 +54,25 @@ function start(vk, connection) {
 
     let args = message.trim().split(/ +/);
 
-    let commandname = args.shift().toLowerCase();
+    let commandName = args.shift().toLowerCase();
 
     addStats({
-      commandname,
+      commandName,
       groupId,
       msgId: conversationMessageId,
       userId,
       message,
-      payload
+      payload,
+      attachments
     });
 
     if (payload) {
+      console.log(payload);
       payload = JSON.parse(payload);
       args = [];
-      if (payload.command === 'start') commandname = 'начать';
 
-      if (payload.button === 'getschedule') commandname = 'рсп';
-
-      if (payload.button === 'updateschedule') {
-        args[0] = '0';
-        commandname = 'рсп';
-      }
-
-      if (payload.button === 'allschedule') {
-        args[0] = 'все';
-        commandname = 'рсп';
-      }
-
-      if (payload.button.startsWith('oldschedule-')) {
-        args[0] = 'старое';
-        args[1] = payload.button.replace('oldschedule-', '');
-        commandname = 'рсп';
-      }
-
-      if (payload.button.startsWith('schedule-')) {
-        args[0] = payload.button.replace('schedule-', '');
-        commandname = 'рсп';
-      }
+      commandName = payload.button;
+      if (payload.command) payload.button = payload.command;
     }
 
     const Class = classes.find(e => e.groupId === groupId);
@@ -95,15 +80,15 @@ function start(vk, connection) {
     const defaultKeyboard = config.defaultKeyboard;
 
     try {
-      const command = collection.get(commandname);
+      const command = commands.find(cm => cm.name.includes(commandName));
       if (command) {
-        console.log(`used command: ${command.name}, ${groupId}, ${userId}, ${conversationMessageId}`);
+        console.log(`used command: ${command.name[0]}, ${groupId}, ${userId}, ${conversationMessageId}`);
 
         setTimeout(() => {
           removeMessage(conversationMessageId, groupId);
         }, 4000000);
 
-        return command.execute(vk, config, Class, classes, message, args, groupId, userId, conversationMessageId, defaultKeyboard);
+        return command.execute(vk, config, Class, classes, message, args, groupId, userId, conversationMessageId, defaultKeyboard, payload);
       }
     } catch (error) {
       console.log('index.js command error', error);

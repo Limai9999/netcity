@@ -6,7 +6,7 @@ const getLastMessages = require('../utils/getLastMessages');
 const statistics = require('../data/statistics.json');
 
 module.exports = {
-  name: 'статистика',
+  name: ['статистика'],
   description: 'получить статистику по всем беседам',
   admin: true,
   async execute(vk, config, Class, classes, message, args, groupId, userId, conversationMessageId, defaultKeyboard) {
@@ -16,11 +16,11 @@ module.exports = {
 
       const data = [];
 
-      const msgTotal = 10;
+      const msgTotal = 5;
 
       const getStatsOneGroup = async (group) => {
         const { messages, totalMessages, commandsExecuted, groupId } = group;
-        const lastMsgs = getLastMessages(messages, msgTotal, names);
+        const lastMsgs = getLastMessages(messages, msgTotal, names, true);
 
         const res = await vk.call('messages.getConversationsById', {
           peer_ids: groupId,
@@ -52,9 +52,9 @@ ID: ${groupId} (${title}) ${groupId === config.adminChatId ? '(admin-chat)' : ''
         return await getStatsOneGroup(r);
       }));
 
-      console.log(data);
+      // console.log(data);
 
-      return sendMessage(data.join('\n============================\n'), groupId, { defaultKeyboard }, userId, null, 'high');
+      return sendMessage(data.join('\n================================\n'), groupId, { defaultKeyboard }, userId, null, 'high');
     } catch (error) {
       console.log(error);
     }

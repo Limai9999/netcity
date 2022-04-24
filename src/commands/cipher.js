@@ -2,7 +2,7 @@ const sendMessage = require('../utils/sendMessage');
 const CryptoJS = require('crypto-js');
 
 module.exports = {
-  name: 'шифр',
+  name: ['шифр'],
   description: 'зашифровать пароль',
   admin: false,
   execute(vk, config, Class, classes, message, args, groupId, userId, conversationMessageId, defaultKeyboard) {

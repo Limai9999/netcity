@@ -16,12 +16,12 @@ async function loginAndGetSchedule(username, cryptedPassword, distant, test) {
   if (test) {
     return [
       [
-        { status: true, filename: 'расписание_на_13.10.xlsx' },
-        { status: true, filename: 'расписание_на_10.09.xlsx' },
-        { status: true, filename: 'расписафние_на_27.01.xlsx' },
-        { status: true, filename: 'расписание_на_14.10.xlsx' },
-        { status: true, filename: 'расписание_на_11.09.xlsx' },
-        { status: true, filename: 'расписание_на_29.01.xlsx' },
+        { status: true, filename: 'расписание_на_test.test.xlsx' },
+        // { status: true, filename: 'расписание_на_10.09.xlsx' },
+        // { status: true, filename: 'расписафние_на_27.01.xlsx' },
+        // { status: true, filename: 'расписание_на_14.10.xlsx' },
+        // { status: true, filename: 'расписание_на_11.09.xlsx' },
+        // { status: true, filename: 'расписание_на_29.01.xlsx' },
       ]
     ];
   }

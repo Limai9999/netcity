@@ -3,7 +3,7 @@ const sendMessage = require('../utils/sendMessage');
 const startInterval = require('../modules/autoGetSchedule');
 
 module.exports = {
-  name: 'класс',
+  name: ['класс'],
   description: 'добавить/изменить класс',
   admin: false,
   execute(vk, config, Class, classes, message, args, groupId, userId, conversationMessageId, defaultKeyboard) {

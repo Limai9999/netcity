@@ -1,7 +1,7 @@
 const sendMessage = require('../utils/sendMessage');
 
 module.exports = {
-  name: 'заметка',
+  name: ['заметка'],
   description: 'поставить заметку для расписания',
   admin: false,
   async execute(vk, config, Class, classes, message, args, groupId, userId, conversationMessageId, defaultKeyboard) {

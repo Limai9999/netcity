@@ -1,7 +1,7 @@
 const sendMessage = require('../utils/sendMessage');
 
 module.exports = {
-  name: 'начать',
+  name: ['начать'],
   description: 'начать (хуита при открытии бота первый раз)',
   hidden: true,
   admin: false,
