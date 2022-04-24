@@ -3,8 +3,7 @@ const fs = require('fs');
 
 const getConfig = require('./modules/getConfig');
 
-const classes = require('./data/classes.json');
-const config = getConfig();
+const { config, classes } = getConfig();
 
 // console.log(config.vkToken);
 

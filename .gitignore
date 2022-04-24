@@ -1,5 +1,5 @@
-# bot config
-src/data/config.json
+# bot data
+src/data/
 
 # vksession
 vksession
