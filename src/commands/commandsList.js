@@ -7,8 +7,8 @@ module.exports = {
   execute(vk, config, Class, classes, message, args, groupId, userId, conversationMessageId, defaultKeyboard) {
     const list = Array.from(vk.collection).map((r, i) => {
       const [, command] = r;
-      if (command.admin && groupId !== config.adminChatId) return;
-      return `${i + 1}. ${command.name} - ${command.description} ${command.admin ? '- (admin chat only)' : ''}`;
+      if ((command.admin || command.hidden) && groupId !== config.adminChatId) return;
+      return `${i + 1}. ${command.name} - ${command.description} ${command.admin ? '- (admin chat only)' : ''} ${command.hidden ? '- (скрыта)' : ''}`;
     }).filter(e => e);
 
     const result = `Список команд:\n\n${list.join('\n')}`;

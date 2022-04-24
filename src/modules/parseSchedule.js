@@ -159,6 +159,8 @@ async function parse(filename, className) {
       room
     };
 
+    console.log('parsed schedule');
+
     return returning;
     // console.log(returning);
 

@@ -77,7 +77,7 @@ module.exports = {
       }
     }
     if (Class.alreadyGetting) {
-      return sendMessage('Кто-то либо ты уже запустил поиск расписания, надо немного подождать', groupId, { defaultKeyboard }, userId, null, 'low');
+      return sendMessage('Бот уже ищет расписание, надо немного подождать', groupId, { defaultKeyboard }, userId, null, 'low');
     }
     if (!Class.schedule || args[0] === '0' || args[0] === 'все' || args[0] === 'дистант') {
       await sendMessage('прошу немного подождать', groupId, { defaultKeyboard }, userId, null, 'low');
@@ -169,7 +169,7 @@ module.exports = {
         return result;
       }));
 
-      console.log(filenames);
+      // console.log(filenames);
 
       filenames = filenames.filter(e => e);
 

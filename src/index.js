@@ -1,8 +1,12 @@
 const easyvk = require('easyvk');
 const fs = require('fs');
 
-const config = require('./data/config.json');
+const getConfig = require('./modules/getConfig');
+
 const classes = require('./data/classes.json');
+const config = getConfig();
+
+// console.log(config.vkToken);
 
 const removeMessage = require('./utils/removeMessage');
 const sendMessage = require('./utils/sendMessage');
@@ -61,6 +65,8 @@ function start(vk, connection) {
     if (payload) {
       payload = JSON.parse(payload);
       args = [];
+      if (payload.command === 'start') commandname = 'начать';
+
       if (payload.button === 'getschedule') commandname = 'рсп';
 
       if (payload.button === 'updateschedule') {

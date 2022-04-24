@@ -133,7 +133,7 @@ module.exports = async (groupId, classes, all = false, automatic = true) => {
       }
     });
   } catch (error) {
-    console.log(error);
+    console.log('getschedule', error);
     return result;
   }
 

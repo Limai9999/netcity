@@ -170,7 +170,7 @@ async function loginAndGetSchedule(username, cryptedPassword, distant, test) {
 
       await wait(20000, 20000);
 
-      console.log(Elements, 'elems');
+      // console.log(Elements, 'elems');
 
       const results = Elements.map(r => {
         const schedule = r.lessons.map(r => {
@@ -191,7 +191,7 @@ async function loginAndGetSchedule(username, cryptedPassword, distant, test) {
         return { status: true, distant: true, filename: `Расписание на ${r.date}`, result };
       });
 
-      console.log(results, 'res');
+      // console.log(results, 'res');
 
       addResults = results;
     }
@@ -304,7 +304,7 @@ async function loginAndGetSchedule(username, cryptedPassword, distant, test) {
     logOut();
     // console.log(statuses, 'ssssss');
 
-    console.log('statuses', statuses);
+    // console.log('statuses', statuses);
 
     if (distant) {
       addResults.map(r => {
@@ -312,6 +312,7 @@ async function loginAndGetSchedule(username, cryptedPassword, distant, test) {
       });
     }
 
+    console.log('got schedule files');
     return statuses;
   } catch (error) {
     throw new Error(`Ошибка при получении файлов расписания из Сетевой Страны.\n\n${error}`);
