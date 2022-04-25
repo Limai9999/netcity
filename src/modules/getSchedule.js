@@ -10,7 +10,7 @@ const { defaultKeyboard } = require('../data/config.json');
 
 module.exports = async (groupId, classes, all = false, automatic = true) => {
   const Class = classes.find(e => e.groupId === groupId);
-  const test = true;
+  const test = false;
   const distant = false;
 
   if (!automatic) {
@@ -125,8 +125,8 @@ module.exports = async (groupId, classes, all = false, automatic = true) => {
               one_time: false
             });
 
-            console.log('schedule,', schedule);
-            console.log('newsched', r);
+            // console.log('schedule,', schedule);
+            // console.log('newsched', r);
 
             const changedList = [];
             if (schedule.result.totalLessons !== r.result.totalLessons) changedList.push(`количество уроков (было ${schedule.result.totalLessons}, стало ${r.result.totalLessons})`);
@@ -153,8 +153,8 @@ module.exports = async (groupId, classes, all = false, automatic = true) => {
               check = false;
             });
 
-            console.log('old', lessonsOld);
-            console.log('new', lessonsNew);
+            // console.log('old', lessonsOld);
+            // console.log('new', lessonsNew);
 
             for (let i = 0; i < lessonsOld.length; i++) {
               if (lessonsOld[i] === lessonsNew[i]) continue;

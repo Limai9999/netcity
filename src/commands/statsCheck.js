@@ -11,7 +11,7 @@ module.exports = {
   admin: true,
   async execute(vk, config, Class, classes, message, args, groupId, userId, conversationMessageId, defaultKeyboard) {
     try {
-      if (groupId !== config.adminChatId) return console.log('TRYED USE STATISTICS IN NOT ADMIN CHAT');
+      // if (groupId !== config.adminChatId) return console.log('TRYED USE STATISTICS IN NOT ADMIN CHAT');
       const names = await getUsernames(vk, statistics);
 
       const data = [];
@@ -27,18 +27,18 @@ module.exports = {
           extended: 1
         });
 
-        const { title, owner_id, members_count } = res.items[0].chat_settings;
+        const { title, owner_id, members_count } = res.items[0].chat_settings || { title: 'неизв.', owner_id: 'неизв.', members_count: 'неизв.' };
         // const [conversationTitle, totalMembers, ownerId] = [res.items[0].chat_settings.title, res.items[0].chat_settings];
 
         // console.log(fiveLastMsgs);
 
-        const usernameOwner = names.find(e => e.userId == owner_id).name || owner_id;
+        const usernameOwner = names.find(e => e.userId == owner_id) || { name: owner_id };
         const foundClass = classes.find(e => e.groupId === groupId);
 
         return data.push(`
 ID: ${groupId} (${title}) ${groupId === config.adminChatId ? '(admin-chat)' : ''}
-Класс: ${foundClass ? ` ${foundClass.className}` : 'не добавлен'}
-Создатель: ${usernameOwner} - (${owner_id})
+Класс: ${foundClass ? ` ${foundClass.className}` : '-'}
+Создатель: ${usernameOwner.name} - (${owner_id})
 Всего участников: ${members_count}
 Всего сообщений/сохранено в боте: ${totalMessages}/${messages.length}
 Использовано команд кнопками: ${commandsExecuted}
@@ -48,14 +48,15 @@ ID: ${groupId} (${title}) ${groupId === config.adminChatId ? '(admin-chat)' : ''
       };
 
       await Promise.all(statistics.map(async r => {
-        if (!r.groupId.startsWith('2000000')) return;
+        if (!r.groupId.startsWith('2000000') && args[0] !== 'полная') return;
         return await getStatsOneGroup(r);
       }));
 
       // console.log(data);
 
-      return sendMessage(data.join('\n================================\n'), groupId, { defaultKeyboard }, userId, null, 'high');
+      return sendMessage(data.join('\n=========================\n'), groupId, { defaultKeyboard }, userId, null, 'high');
     } catch (error) {
+      sendMessage('При получении статистика произошла ошибка.', groupId, { defaultKeyboard }, userId, null, 'high');
       console.log(error);
     }
   }

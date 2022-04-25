@@ -35,7 +35,8 @@ module.exports = {
         timeoutStarted: false,
         username: args[1],
         password: args[2],
-        lastSeenSchedule: null
+        lastSeenSchedule: null,
+        enableRedirect: false
       });
 
       startInterval(groupId, classes);

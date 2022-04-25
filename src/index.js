@@ -3,12 +3,13 @@ const fs = require('fs');
 
 const getConfig = require('./modules/getConfig');
 
-const { config, classes } = getConfig();
+const { config, classes, statistics } = getConfig();
 
 // console.log(config.vkToken);
 
 const removeMessage = require('./utils/removeMessage');
 const sendMessage = require('./utils/sendMessage');
+const redirectMessage = require('./utils/redirectMessage');
 
 const addStats = require('./modules/addStats');
 const startInterval = require('./modules/autoGetSchedule');
@@ -40,7 +41,7 @@ easyvk({
 
 function start(vk, connection) {
   connection.on('message_new', async ctx => {
-    console.log('ctx', ctx);
+    // console.log('ctx', ctx);
     let { payload, text, peer_id, from_id, conversation_message_id, attachments } = ctx.message;
 
     const message = text.replace('[club202891784|@chechnyaltd]', '').trim();
@@ -50,7 +51,11 @@ function start(vk, connection) {
 
     console.log(groupId, message);
 
-    // if (groupId !== '2000000002') return; // FOR TEST ONLY
+    const Class = classes.find(e => e.groupId === groupId);
+
+    // if (groupId !== config.adminChatId) return; // FOR TEST ONLY
+
+    redirectMessage(text, Class, config.adminChatId, Number(userId), vk, statistics);
 
     let args = message.trim().split(/ +/);
 
@@ -75,13 +80,12 @@ function start(vk, connection) {
       if (payload.command) payload.button = payload.command;
     }
 
-    const Class = classes.find(e => e.groupId === groupId);
-
     const defaultKeyboard = config.defaultKeyboard;
 
     try {
       const command = commands.find(cm => cm.name.includes(commandName));
       if (command) {
+        if (command.admin && groupId !== config.adminChatId) return console.log('tryed use admin command in non-admin group');
         console.log(`used command: ${command.name[0]}, ${groupId}, ${userId}, ${conversationMessageId}`);
 
         setTimeout(() => {
