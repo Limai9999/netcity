@@ -1,3 +1,5 @@
+const TEST = false;
+
 const easyvk = require('easyvk');
 const fs = require('fs');
 
@@ -6,6 +8,8 @@ const getConfig = require('./modules/getConfig');
 const { config, classes, statistics } = getConfig();
 
 // console.log(config.vkToken);
+
+const token = TEST ? config.testVKToken : config.vkToken;
 
 const removeMessage = require('./utils/removeMessage');
 const sendMessage = require('./utils/sendMessage');
@@ -27,13 +31,14 @@ for (const fileName of commandsDir) {
 }
 
 easyvk({
-  token: config.vkToken,
+  token,
   v: '5.131',
   save: false,
   utils: {
     bots: true
   }
 }).then(async (vk) => {
+  console.log(TEST ? 'TEST' : 'PRODUCTION, ', 'token:', token);
   const connection = await vk.bots.longpoll.connect();
   vk.commands = commands;
   start(vk, connection);
@@ -53,9 +58,9 @@ function start(vk, connection) {
 
     const Class = classes.find(e => e.groupId === groupId);
 
-    // if (groupId !== config.adminChatId) return; // FOR TEST ONLY
+    if (groupId !== config.adminChatId && TEST) return; // FOR TEST ONLY
 
-    redirectMessage(text, Class, config.adminChatId, Number(userId), vk, statistics);
+    redirectMessage(ctx.message, Class, config.adminChatId, userId, vk, statistics);
 
     let args = message.trim().split(/ +/);
 
@@ -106,6 +111,7 @@ for (let i = 0; i < classes.length; i++) {
   Class.alreadyGetting = false;
   Class.timeoutStarted = false;
   Class.schedule = null;
+  Class.homework = null;
   Class.lastUpdate = false;
   Class.lastSeenSchedule = null;
   Class.oldSchedule = [];

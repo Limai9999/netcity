@@ -6,7 +6,7 @@ module.exports = {
   admin: false,
   async execute(vk, config, Class, classes, message, args, groupId, userId, conversationMessageId, defaultKeyboard) {
     try {
-      if (!groupId.startsWith('20000000')) return sendMessage('К глубочайшему сожалению, данная команда не может быть выполнена в личных сообщениях данной группы посредством социальной сети ВКонтакте.\n\nРаботает только в беседе.', groupId, { defaultKeyboard }, userId, null, 'dontdelete');
+      if (groupId < 2000000000) return sendMessage('К глубочайшему сожалению, данная команда не может быть выполнена в личных сообщениях данной группы посредством социальной сети ВКонтакте.\n\nРаботает только в беседе.', groupId, { defaultKeyboard }, userId, null, 'dontdelete');
       if (!Class) return sendMessage('Класс не найден.\n\nДобавить класс: "класс <имя класса> <логин для сетевого города> <пароль>"\nПароль нужно отправить зашифрованным, получить его можно в лс бота - "шифр <пароль>"', groupId, { defaultKeyboard }, userId, null, 'high');
       if (args[1]) {
         if (!Class.schedule) return sendMessage('Расписание еще не получено. Напиши "рсп" (без номера файла) чтобы его получить.', groupId, { defaultKeyboard }, userId, null, 'low');

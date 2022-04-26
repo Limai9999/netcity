@@ -1,9 +1,13 @@
+const TEST = false;
+
 const { stringify } = require('querystring');
 const axios = require('axios');
 
 const removeMessage = require('./removeMessage');
 
-const { vkToken } = require('../data/config.json');
+const { vkToken, testVKToken } = require('../data/config.json');
+
+const token = TEST ? testVKToken : vkToken;
 
 module.exports = async (message, peer_ids, additionallyData = null, userId = null, skip = false, importanceLevel = 'dontdelete') => {
   try {
@@ -14,7 +18,7 @@ module.exports = async (message, peer_ids, additionallyData = null, userId = nul
 
     const data = stringify({
       v: 5.131,
-      access_token: vkToken,
+      access_token: token,
       peer_ids,
       random_id: Date.now() + Math.random().toString(5).substring(2, 8),
       message,

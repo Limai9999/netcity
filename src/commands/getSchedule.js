@@ -9,7 +9,7 @@ module.exports = {
   description: 'получить расписание уроков',
   admin: false,
   async execute(vk, config, Class, classes, message, args, groupId, userId, conversationMessageId, defaultKeyboard, payload) {
-    if (!groupId.startsWith('20000000')) return sendMessage('К глубочайшему сожалению, данная команда не может быть выполнена в личных сообщениях данной группы посредством социальной сети ВКонтакте.\n\nРаботает только в беседе.', groupId, {}, userId, null, 'dontdelete');
+    if (groupId < 2000000000) return sendMessage('К глубочайшему сожалению, данная команда не может быть выполнена в личных сообщениях данной группы посредством социальной сети ВКонтакте.\n\nРаботает только в беседе.', groupId, {}, userId, null, 'dontdelete');
     if (!Class) return sendMessage('Класс не найден.\n\nДобавить: "класс <имя класса> <логин для сетевого города> <пароль>"\nПароль можно зашифровать в лс бота - "шифр <пароль>"', groupId, { defaultKeyboard }, userId, null, 'medium');
 
     const todayDate = [
@@ -19,7 +19,7 @@ module.exports = {
 
     if (payload) {
       if (payload.button === 'chooseschedule') args[0] = payload.schedule;
-      if (payload.button === 'allschedule') args[0] = 'все';
+      // if (payload.button === 'allschedule') args[0] = 'все';
       if (payload.button === 'updateschedule') args[0] = '0';
       if (payload.button === 'chooseoldschedule') {
         args[0] = 'старое';
@@ -27,12 +27,12 @@ module.exports = {
       }
     }
 
-    if (args[0] && args[0] !== '0' && args[0] !== 'все' && args[0] !== 'дистант' && args[0] !== 'старое') {
+    if (args[0] && args[0] !== '0' && args[0] !== 'дистант' && args[0] !== 'старое') {
       if (!Class.schedule) return sendMessage('Расписание еще не получено. Напиши "рсп" (без номера файла) чтобы его получить.', groupId, { defaultKeyboard }, userId, null, 'low');
       try {
         const i = +args[0] - 1;
         if (!Class.schedule[i]) return sendMessage('нету такого расписания!!!', groupId, { defaultKeyboard }, userId, null, 'low');
-        if (Class.schedule[i].error) return sendMessage(`Ошибка при получении расписания:\n${Class.schedule[i].error}\n\nПолучить все файлы: рсп все`, groupId, { defaultKeyboard }, userId, null, 'high');
+        if (Class.schedule[i].error) return sendMessage(`Ошибка при получении расписания:\n${Class.schedule[i].error}`, groupId, { defaultKeyboard }, userId, null, 'high');
         await sendMessage(`Расписание на ${Class.schedule[i].result.date} (${moment(Class.lastUpdate).locale('ru').format('HH:mm')}) для ${Class.className}.\n\nВсего уроков: ${Class.schedule[i].result.totalLessons}, начинаются в ${Class.schedule[i].result.startTime}${Class.schedule[i].result.room ? `, каб. ${Class.schedule[i].result.room}` : ''}.${Class.notes[Class.schedule[i].result.filename] ? `${`\n\nЗаметка: ${Class.notes[Class.schedule[i].result.filename]} ⚠️`}` : ''}\n\n\n${Class.schedule[i].result.schedule.join('\n')}${Class.schedule[i].result.distant ? '\n\nЭто расписание взято не из объявлений, а из самого сетевого города.' : ''}`, groupId, { defaultKeyboard }, userId, null, 'medium');
 
         // if (LSSTimeout.timeout) {
@@ -65,7 +65,7 @@ module.exports = {
         keyboard = JSON.stringify(keyboard);
         defaultKeyboard.inline = false;
 
-        await sendMessage(`вышла ошибочка\n${error}\n\nПолучить все файлы: рсп все`, groupId, { keyboard }, userId, null, 'high');
+        await sendMessage(`вышла ошибочка\n${error}`, groupId, { keyboard }, userId, null, 'high');
         return console.log(error);
       }
     } else if (args[0] === 'старое') {
@@ -73,7 +73,7 @@ module.exports = {
       try {
         const i = +args[1] - 1;
         if (!Class.oldSchedule[i]) return sendMessage('нету такого расписания!!!', groupId, { defaultKeyboard }, userId, null, 'low');
-        if (Class.oldSchedule[i].error) return sendMessage(`Ошибка при получении расписания:\n${Class.oldSchedule[i].error}\n\nПолучить все файлы: рсп все`, groupId, { defaultKeyboard }, userId, null, 'high');
+        if (Class.oldSchedule[i].error) return sendMessage(`Ошибка при получении расписания:\n${Class.oldSchedule[i].error}`, groupId, { defaultKeyboard }, userId, null, 'high');
         await sendMessage(`Неактуальное расписание на ${Class.oldSchedule[i].result.date} (${moment(Class.oldSchedule[i].result.lastUpdate).locale('ru').format('HH:mm')}) для ${Class.className}.\n\nВсего уроков: ${Class.oldSchedule[i].result.totalLessons}, начинаются в ${Class.oldSchedule[i].result.startTime}${Class.oldSchedule[i].result.room ? `, каб. ${Class.oldSchedule[i].result.room}` : ''}.${Class.notes[Class.oldSchedule[i].result.filename] ? `${`\n\nЗаметка: ${Class.notes[Class.oldSchedule[i].result.filename]} ⚠️`}` : ''}\n\n\n${Class.oldSchedule[i].result.schedule.join('\n')}${Class.oldSchedule[i].result.distant ? '\n\nЭто расписание взято не из объявлений, а из самого сетевого города.' : ''}`, groupId, { defaultKeyboard }, userId, null, 'medium');
         return;
       } catch (error) {
@@ -82,15 +82,15 @@ module.exports = {
         keyboard = JSON.stringify(keyboard);
         defaultKeyboard.inline = false;
 
-        await sendMessage(`вышла ошибочка\n${error}\n\nПолучить все файлы: рсп все`, groupId, { keyboard }, userId, null, 'high');
+        await sendMessage(`вышла ошибочка\n${error}`, groupId, { keyboard }, userId, null, 'high');
         return console.log(error);
       }
     }
     if (Class.alreadyGetting) {
       return sendMessage('Бот уже ищет расписание, надо немного подождать', groupId, { defaultKeyboard }, userId, null, 'low');
     }
-    if (!Class.schedule || args[0] === '0' || args[0] === 'все' || args[0] === 'дистант') {
-      await sendMessage('прошу немного подождать', groupId, { defaultKeyboard }, userId, null, 'low');
+    if (!Class.schedule || args[0] === '0' || args[0] === 'дистант') {
+      sendMessage('прошу немного подождать', groupId, { defaultKeyboard }, userId, null, 'low');
     }
 
     try {
@@ -101,14 +101,17 @@ module.exports = {
       if (args[0] === 'дистант') distant = true;
 
       if (distant) {
-        Class.schedule = Class.schedule && Class.scheduleType === 'distant' ? Class.schedule : await getSchedule(groupId, classes, false, distant, false, false);
+        Class.schedule = Class.schedule && Class.scheduleType === 'distant' ? Class.schedule : (await getSchedule(groupId, classes, false, distant, false, false)).statuses;
       } else {
-        Class.schedule = args[0] === 'все' ? await getSchedule(groupId, classes, true, false, false, false) : !Class.schedule || args[0] === '0' ? await getSchedule(groupId, classes, false, false, false, false) : Class.schedule;
+        // Class.schedule = args[0] === 'все' ? (await getSchedule(groupId, classes, true, false, false, false)).statuses :
+        Class.schedule = !Class.schedule || args[0] === '0' ? (await getSchedule(groupId, classes, false, false, false, false)).statuses : Class.schedule;
       }
 
       // console.log(Class.schedule);
 
       Class.alreadyGetting = false;
+
+      // console.log('teeeest', Class.schedule);
 
       if (Class.schedule.length === 0) {
         let keyboard = defaultKeyboard;
@@ -117,7 +120,7 @@ module.exports = {
         defaultKeyboard.inline = false;
 
         Class.schedule = null;
-        return sendMessage('Расписания в сетевом нет либо произошла какая-то ошибка.\n\nПолучить все файлы: рсп все', groupId, { keyboard }, userId, null, 'high');
+        return sendMessage('Расписания в сетевом нет либо произошла какая-то ошибка.', groupId, { keyboard }, userId, null, 'high');
       } else if (!Class.schedule) {
         let keyboard = defaultKeyboard;
         keyboard.inline = true;
@@ -125,14 +128,14 @@ module.exports = {
         defaultKeyboard.inline = false;
 
         Class.schedule = null;
-        return sendMessage('вышла ошибочка сетевово горада либо кадыров дибил\n\nПолучить все файлы: рсп все', groupId, { keyboard }, userId, null, 'high');
+        return sendMessage('вышла ошибочка сетевово горада либо кадыров дибил', groupId, { keyboard }, userId, null, 'high');
       }
 
       let keyboard = {
         buttons: [
           [],
           [
-            { action: { type: 'text', label: 'Получить расписание', payload: JSON.stringify({ button: 'getschedule' }) }, color: 'positive' },
+            { action: { type: 'text', label: 'Домашнее задание', payload: JSON.stringify({ button: 'gethomework' }) }, color: 'positive' },
             // { action: { type: 'text', label: 'Расп. (дистант)', payload: '{"button":"getschedule_dist"}' }, color: 'positive' },
           ],
           [
@@ -229,7 +232,7 @@ module.exports = {
       keyboard = JSON.stringify(keyboard);
       defaultKeyboard.inline = false;
 
-      await sendMessage(`вышла ошибочка\n${error}\n\nПолучить все файлы: рсп все`, groupId, { keyboard }, userId, null, 'high');
+      await sendMessage(`вышла ошибочка\n${error}`, groupId, { keyboard }, userId, null, 'high');
       console.log(error);
     }
   }

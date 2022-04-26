@@ -1,14 +1,18 @@
+const TEST = false;
+
 const axios = require('axios');
 const { stringify } = require('querystring');
 
-const { vkToken } = require('../data/config.json');
+const { vkToken, testVKToken } = require('../data/config.json');
+
+const token = TEST ? testVKToken : vkToken;
 
 module.exports = async (conversation_message_ids, peer_id) => {
   try {
     if (!peer_id.startsWith('200000')) return;
     const data = stringify({
       v: 5.131,
-      access_token: vkToken,
+      access_token: token,
       peer_id,
       delete_for_all: 1,
       conversation_message_ids

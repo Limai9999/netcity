@@ -7,6 +7,8 @@ module.exports = async (groupId, classes) => {
     if (Class.alreadyGetting) return;
     Class.alreadyGetting = false;
 
-    Class.schedule = await getSchedule(groupId, classes);
+    const result = await getSchedule(groupId, classes);
+    Class.schedule = result.statuses;
+    Class.homework = result.homework;
   }, 900000 + Math.floor(Math.random() * (120000 - 60000) ));
 };

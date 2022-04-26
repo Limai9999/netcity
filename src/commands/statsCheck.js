@@ -10,13 +10,13 @@ module.exports = {
   description: 'получить статистику по всем беседам',
   admin: true,
   async execute(vk, config, Class, classes, message, args, groupId, userId, conversationMessageId, defaultKeyboard) {
+    if (groupId < 2000000000) return;
     try {
-      // if (groupId !== config.adminChatId) return console.log('TRYED USE STATISTICS IN NOT ADMIN CHAT');
       const names = await getUsernames(vk, statistics);
 
       const data = [];
 
-      const msgTotal = 5;
+      const msgTotal = 8;
 
       const getStatsOneGroup = async (group) => {
         const { messages, totalMessages, commandsExecuted, groupId } = group;
@@ -36,7 +36,7 @@ module.exports = {
         const foundClass = classes.find(e => e.groupId === groupId);
 
         return data.push(`
-ID: ${groupId} (${title}) ${groupId === config.adminChatId ? '(admin-chat)' : ''}
+ID: ${groupId}${groupId >= 2000000000 ? ` - ${groupId - 2000000000}` : ';'} (${title}) ${groupId === config.adminChatId ? '(admin)' : ''}
 Класс: ${foundClass ? ` ${foundClass.className}` : '-'}
 Создатель: ${usernameOwner.name} - (${owner_id})
 Всего участников: ${members_count}

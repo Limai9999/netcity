@@ -21,7 +21,7 @@ module.exports = async (groupId, classes, all = false, automatic = true) => {
 
   if (!all) filenames = await getScheduleFiles(Class.username, Class.password, distant, test);
 
-  if (!filenames) {
+  if (!filenames || !filenames.statuses) {
     Class.lastUpdate = Date.now();
     return false;
   }
@@ -35,7 +35,7 @@ module.exports = async (groupId, classes, all = false, automatic = true) => {
     fn.map(filename => {
       if (!filename.endsWith('.xlsx')) return console.log('not xlsx file');
       // if (filenames[0].find(e => e.filename === r)) return;
-      filenames[0].push({ status: true, filename });
+      filenames.statuses[0].push({ status: true, filename });
     });
 
     timeoutToCleanSchedule(groupId, classes);
@@ -45,7 +45,7 @@ module.exports = async (groupId, classes, all = false, automatic = true) => {
 
   // console.log(filenames, 'sched');
 
-  const scheduleFiles = await Promise.all(filenames.map(async r => {
+  const scheduleFiles = await Promise.all(filenames.statuses.map(async r => {
     return await Promise.all(r.map(async data => {
       if (!data.status) {
         return {
@@ -79,25 +79,30 @@ module.exports = async (groupId, classes, all = false, automatic = true) => {
     }));
   }));
 
-  const result = [];
+  Class.homework = filenames.homework;
+
+  const result = {
+    statuses: [],
+    homework: filenames.homework
+  };
 
   scheduleFiles.map(r => {
     r.map(r => {
-      result.push(r);
+      result.statuses.push(r);
     });
   });
 
   // console.log(result, 'result end');
 
   try {
-    result.map(r => {
+    result.statuses.map(r => {
       if (r.result.distant) return;
       // console.log(Class.schedule);
       // console.log(result, 'result 1');
 
       if (Class.schedule && result && !all && Class.schedule.length > 0) {
         const index = Class.schedule.findIndex(e => e.filename === r.filename);
-        const indexNew = result.findIndex(e => e.filename === r.filename);
+        const indexNew = result.statuses.findIndex(e => e.filename === r.filename);
         // console.log('sched changed first if');
 
         const schedule = Class.schedule[index];

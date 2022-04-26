@@ -196,28 +196,61 @@ async function loginAndGetSchedule(username, cryptedPassword, distant, test) {
       addResults = results;
     }
 
-    // dist
-
-    await page.click('a[title="Объявления"]');
-
-    // console.log('Объявления - found');
+    // dist end
 
     // let homework = null;
 
-    // await page.evaluate(async () => {
-    //   const tbody = document.querySelector('.table').children[0];
-    //   if (!tbody) return false;
+    let homework = await page.evaluate(async () => {
+      if (document.querySelector('.alert.alert-info')) return {};
 
-    //   const elements = tbody.children;
+      const homeworkTable = document.querySelector('.table').children[0];
 
-    //   let nowDate = null;
+      if (!homeworkTable) return {};
 
-    //   for (let i = 0; i < elements.length; i++) {
-    //     if (elements[i].innerText === 'Срок сдачи\tПредмет\tТип задания\tТема задания\tОтметка') return;
-    //     if (elements[i].className === 'visible-scr-row-sm') return nowDate = elements[i].innerText;
-    //
-    //   }
-    // });
+      const homeworkArray = Array.from(homeworkTable.children)
+          .filter(tr => tr.bgColor && tr.bgColor === '#FFFFFF');
+
+      // if (!homeworkArray.length) return false;
+
+      const result = {};
+
+      homeworkArray.map(tr => {
+        let plusOne = 0;
+
+        if (tr.children[0].className === 'hidden-scr-sm') {
+          plusOne = 1;
+
+          if (result[tr.children[0].innerText] === 'hidden-scr-sm') return;
+          result[tr.children[0].innerText] = [];
+        }
+
+        const resKeys = Object.keys(result);
+
+        if (!resKeys.length || tr.children[1 + plusOne].innerText !== 'Д') return false;
+
+        const lastItem = result[resKeys.pop()];
+        lastItem.push({
+          lesson: tr.children[0 + plusOne].innerText,
+          task: tr.children[2 + plusOne].innerText
+        });
+      });
+
+      return result;
+    });
+
+    // homework object to array
+    homework = Object.keys(homework).map(r => {
+      return {
+        date: r,
+        tasks: homework[r]
+      };
+    });
+
+    console.log('got homework', homework);
+
+    // console.log('Объявления - found');
+
+    await page.click('a[title="Объявления"]');
 
     // console.log('Объявления - clicked');
 
@@ -313,7 +346,11 @@ async function loginAndGetSchedule(username, cryptedPassword, distant, test) {
     }
 
     console.log('got schedule files');
-    return statuses;
+
+    return {
+      statuses,
+      homework
+    };
   } catch (error) {
     throw new Error(`Ошибка при получении файлов расписания из Сетевой Страны.\n\n${error}`);
   }

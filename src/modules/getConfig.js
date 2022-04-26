@@ -11,8 +11,9 @@ module.exports = () => {
   } catch (error) {
     if (!configFile) {
       const config = {
-        'decryptKey': '<GENERATE RANDOM DECRYPT KEY>',
-        'vkToken': '<PLACE HERE YOUR VK BOT TOKEN>',
+        'decryptKey': 'decryptKey',
+        'vkToken': 'vktoken',
+        'testVKToken': 'vktoken',
         'adminChatId': '2000000002',
         'defaultKeyboard': {
           'buttons': [
