@@ -9,8 +9,17 @@ module.exports = {
 
     const homework = Class.homework;
 
-    if (!homework) return sendMessage('Сначала нужно получить расписание.', groupId, { defaultKeyboard }, userId, null, 'medium');
-    if (!homework.length) return sendMessage('Домашнего задания нет.', groupId, { defaultKeyboard }, userId, null, 'medium');
+    const keyboard = JSON.stringify({
+      buttons: [
+        [
+          { action: { type: 'text', label: 'Получить расписание', payload: JSON.stringify({ button: 'getschedule' }) }, color: 'positive' },
+        ]
+      ],
+      inline: true
+    });
+
+    if (!homework) return sendMessage('Сначала нужно получить расписание.', groupId, { keyboard }, userId, null, 'medium');
+    if (!homework.length) return sendMessage('Домашнего задания нет.', groupId, { keyboard }, userId, null, 'medium');
 
     const homeworkMessage = `Домашнее задание для ${Class.className}:\n\n` + homework.map(e => {
       const tasks = e.tasks.map((r, i) => {
@@ -19,11 +28,6 @@ module.exports = {
 
       return `${e.date}:\n${tasks.join('\n')}`;
     }).join('\n\n');
-
-    let keyboard = defaultKeyboard;
-    keyboard.inline = true;
-    keyboard = JSON.stringify(keyboard);
-    defaultKeyboard.inline = false;
 
     return sendMessage(homeworkMessage, groupId, { keyboard }, userId, null, 'medium');
   }

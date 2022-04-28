@@ -38,7 +38,7 @@ easyvk({
     bots: true
   }
 }).then(async (vk) => {
-  console.log(TEST ? 'TEST' : 'PRODUCTION, ', 'token:', token);
+  console.log(TEST ? 'TEST' : 'PRODUCTION', ': token:', token);
   const connection = await vk.bots.longpoll.connect();
   vk.commands = commands;
   start(vk, connection);

@@ -141,6 +141,7 @@ async function parse(filename, className) {
 
     try {
       date = splitted.length > 3 ? `${splitted[2]} ${splitted[3]}`.replace('.xlsx', '') : splitted[2].replace('.xlsx', '');
+      if (filename.startsWith('изменения_в_расписании_на_')) date = splitted[4].replace('.xlsx', '');
     } catch (error) {
       console.log('error parseSchedule', error, filename);
       return {
