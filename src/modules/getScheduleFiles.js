@@ -14,16 +14,12 @@ const qs = require('qs');
 
 async function loginAndGetSchedule(username, cryptedPassword, distant, test) {
   if (test) {
-    return [
-      [
-        { status: true, filename: 'расписание_на_test.test.xlsx' },
-        // { status: true, filename: 'расписание_на_10.09.xlsx' },
-        // { status: true, filename: 'расписафние_на_27.01.xlsx' },
-        // { status: true, filename: 'расписание_на_14.10.xlsx' },
-        // { status: true, filename: 'расписание_на_11.09.xlsx' },
-        // { status: true, filename: 'расписание_на_29.01.xlsx' },
-      ]
-    ];
+    return {
+      statuses: [[
+        { status: true, filename: 'расписание_на_test.test.xlsx' }
+      ]],
+      homework: false
+    };
   }
   // console.log(cryptedPassword);
   let logOut;
@@ -35,9 +31,20 @@ async function loginAndGetSchedule(username, cryptedPassword, distant, test) {
       args: ['--no-sandbox']
     });
 
-    console.log('browser started');
+    console.log('browser opened');
 
     const page = await browser.newPage();
+
+    // // Connect to Chrome DevTools
+    // const client = await page.target().createCDPSession();
+
+    // // network test
+    // await client.send('Network.emulateNetworkConditions', {
+    //   offline: false,
+    //   downloadThroughput: 2000 * 1024 / 8,
+    //   uploadThroughput: 2000 * 1024 / 8,
+    //   latency: 510
+    // });
 
     console.log('page opened');
 
@@ -47,20 +54,24 @@ async function loginAndGetSchedule(username, cryptedPassword, distant, test) {
 
     const status = homePageRes.status();
 
-    if (status != 200) {
-      throw new Error('Сетевая Страна в данный момент недоступна.');
-    }
-
-    console.log('goto success');
-
     logOut = async () => {
       await page.evaluate(async () => {
         // eslint-disable-next-line new-cap
         await Logout();
       });
 
+      await page.waitForNetworkIdle({ idleTime: 2000, timeout: 5000 });
+
       await browser.close();
+      console.log('browser closed');
     };
+
+    if (status != 200) {
+      logOut();
+      throw new Error('Сетевая Страна в данный момент недоступна.');
+    }
+
+    console.log('goto success');
 
     console.log('loaded main page');
 
@@ -74,20 +85,27 @@ async function loginAndGetSchedule(username, cryptedPassword, distant, test) {
     const bytes = CryptoJS.AES.decrypt(cryptedPassword, decryptKey);
     const password = bytes.toString(CryptoJS.enc.Utf8);
 
+    if (!password || !bytes) {
+      logOut();
+      throw new Error('Не удалось дешифровать пароль.');
+    }
+
     if (cryptedPassword.length < 15) {
       logOut();
-      throw new Error('Пароль скорее всего не зашифрован.');
+      throw new Error('Пароль не зашифрован командой "шифр".');
     }
 
     await page.keyboard.type(password);
 
-    await page.keyboard.press('Enter');
+    page.keyboard.press('Enter');
 
-    // await page.waitForNavigation();
+    await page.waitForNavigation({
+      waitUntil: 'networkidle0'
+    });
 
     console.log('logged in');
 
-    await page.waitForSelector('h1');
+    // await page.waitForSelector('h1');
 
     const h1 = await page.evaluate(() => {
       const h1 = document.querySelector('h1');
@@ -97,8 +115,11 @@ async function loginAndGetSchedule(username, cryptedPassword, distant, test) {
     // console.log(h1);
 
     if (h1 === 'Предупреждение о безопасности') {
-      await page.click('button[title="Продолжить"]');
-      await page.waitForSelector('a[title="Объявления"]');
+      page.click('button[title="Продолжить"]');
+      // await page.waitForSelector('a[title="Объявления"]');
+      await page.waitForNavigation({
+        waitUntil: 'networkidle0'
+      });
       // console.log('skipped warning');
     } else if (h1 === 'Ошибка') {
       await page.waitForTimeout(1500);
@@ -110,7 +131,7 @@ async function loginAndGetSchedule(username, cryptedPassword, distant, test) {
       console.log(error);
 
       logOut();
-      throw new Error(`Ошибка при авторизации в Сетевую Инстанцию.\n\n${error ? error : ''}`);
+      throw new Error(`Ошибка при входе в Сетевую Инстанцию.\n\n${error ? error : ''}`);
     }
 
     // dist
@@ -250,11 +271,14 @@ async function loginAndGetSchedule(username, cryptedPassword, distant, test) {
 
     // console.log('Объявления - found');
 
-    await page.click('a[title="Объявления"]');
+    page.click('a[title="Объявления"]');
 
     // console.log('Объявления - clicked');
 
-    await page.waitForSelector('.advertisement');
+    // await page.waitForSelector('.advertisement');
+    await page.waitForNavigation({
+      waitUntil: 'networkidle0'
+    });
 
     // console.log('Объявления and advertisement - found');
 
