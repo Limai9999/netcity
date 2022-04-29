@@ -43,7 +43,7 @@ async function parse(filename, className) {
       };
     }
 
-    // масиивы информации
+    // масcивы информации
     let timeArr = workbook.worksheets[0].columns[2].values;
     let lessonsArr = workbook.worksheets[0].columns[classColumn].values;
     let classRoomsArr = workbook.worksheets[0].columns[classColumn + 1].values;
