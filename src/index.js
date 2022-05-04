@@ -3,8 +3,9 @@ const TEST = false;
 const easyvk = require('easyvk');
 const fs = require('fs');
 
-const getConfig = require('./modules/getConfig');
+require('./modules/addPropertiesToClasses')();
 
+const getConfig = require('./modules/getConfig');
 const { config, classes, statistics } = getConfig();
 
 // console.log(config.vkToken);
@@ -18,7 +19,6 @@ const redirectMessage = require('./utils/redirectMessage');
 const addStats = require('./modules/addStats');
 const startInterval = require('./modules/autoGetSchedule');
 
-// const collection = new Map();
 const commandsDir = fs.readdirSync('./src/commands')
     .filter(r => r.endsWith('.js'));
 
@@ -26,7 +26,6 @@ const commands = [];
 
 for (const fileName of commandsDir) {
   const command = require(`./commands/${fileName}`);
-  // collection.set(command.name, command);
   commands.push(command);
 }
 
@@ -91,6 +90,13 @@ function start(vk, connection) {
       const command = commands.find(cm => cm.name.includes(commandName));
       if (command) {
         if (command.admin && groupId !== config.adminChatId) return console.log('tryed use admin command in non-admin group');
+
+        const bUsers = Class.bannedUsers;
+        // find executor in banned users
+        const executorBanned = bUsers.find(e => e.userId === userId);
+
+        if (executorBanned && command.commandName !== 'schedule') return sendMessage(`Вы запломбированы администратором.\nПричина: ${executorBanned.reason || 'Неизвестно'}`, groupId, { defaultKeyboard }, userId, null, 'low');
+
         console.log(`used command: ${command.name[0]}, ${groupId}, ${userId}, ${conversationMessageId}`);
 
         setTimeout(() => {
@@ -115,6 +121,7 @@ for (let i = 0; i < classes.length; i++) {
   Class.lastUpdate = false;
   Class.lastSeenSchedule = null;
   Class.oldSchedule = [];
+  Class.lastSentSchedule = [];
 
   // lastSeens.push({groupId: config.classes[i].groupId, timeout: null});
 

@@ -1,16 +1,25 @@
 const sendMessage = require('../utils/sendMessage');
+const removeAllLastSchedules = require('../utils/removeAllLastSchedules');
 
 const moment = require('moment');
 
 const getSchedule = require('../modules/getSchedule');
 
 module.exports = {
-  name: ['рсп', 'getschedule', 'updateschedule', 'allschedule', 'chooseoldschedule', 'chooseschedule'],
+  name: ['рсп', 'расписание', 'getschedule', 'updateschedule', 'allschedule', 'chooseoldschedule', 'chooseschedule'],
+  commandName: 'schedule',
   description: 'получить расписание уроков',
   admin: false,
   async execute(vk, config, Class, classes, message, args, groupId, userId, conversationMessageId, defaultKeyboard, payload) {
     if (groupId < 2000000000) return sendMessage('К глубочайшему сожалению, данная команда не может быть выполнена в личных сообщениях данной группы посредством социальной сети ВКонтакте.\n\nРаботает только в беседе.', groupId, {}, userId, null, 'dontdelete');
     if (!Class) return sendMessage('Класс не найден.\n\nДобавить: "класс <имя класса> <логин для сетевого города> <пароль>"\nПароль можно зашифровать в лс бота - "шифр <пароль>"', groupId, { defaultKeyboard }, userId, null, 'medium');
+
+    const bannedTryedUse = Class.bannedUsers.find(item => item.userId === userId);
+    if (bannedTryedUse) {
+      console.log('try');
+      removeAllLastSchedules(Class.lastSentSchedules, groupId);
+      return sendMessage('Вы заблокированы, поэтому недавно полученные расписания удалены.', groupId, { defaultKeyboard }, userId, null, 'low');
+    }
 
     const todayDate = [
       moment().format('DD.MM'),
@@ -33,7 +42,8 @@ module.exports = {
         const i = +args[0] - 1;
         if (!Class.schedule[i]) return sendMessage('нету такого расписания!!!', groupId, { defaultKeyboard }, userId, null, 'low');
         if (Class.schedule[i].error) return sendMessage(`Ошибка при получении расписания:\n${Class.schedule[i].error}`, groupId, { defaultKeyboard }, userId, null, 'high');
-        await sendMessage(`Расписание на ${Class.schedule[i].result.date} (${moment(Class.lastUpdate).locale('ru').format('HH:mm')}) для ${Class.className}.\n\nВсего уроков: ${Class.schedule[i].result.totalLessons}, начинаются в ${Class.schedule[i].result.startTime}${Class.schedule[i].result.room ? `, каб. ${Class.schedule[i].result.room}` : ''}.${Class.notes[Class.schedule[i].result.filename] ? `${`\n\nЗаметка: ${Class.notes[Class.schedule[i].result.filename]} ⚠️`}` : ''}\n\n\n${Class.schedule[i].result.schedule.join('\n')}${Class.schedule[i].result.distant ? '\n\nЭто расписание взято не из объявлений, а из самого сетевого города.' : ''}`, groupId, { defaultKeyboard }, userId, null, 'medium');
+        const msgId = await sendMessage(`Расписание на ${Class.schedule[i].result.date} (${moment(Class.lastUpdate).locale('ru').format('HH:mm')}) для ${Class.className}.\n\nВсего уроков: ${Class.schedule[i].result.totalLessons}, начинаются в ${Class.schedule[i].result.startTime}${Class.schedule[i].result.room ? `, каб. ${Class.schedule[i].result.room}` : ''}.${Class.notes[Class.schedule[i].result.filename] ? `${`\n\nЗаметка: ${Class.notes[Class.schedule[i].result.filename]} ⚠️`}` : ''}\n\n\n${Class.schedule[i].result.schedule.join('\n')}${Class.schedule[i].result.distant ? '\n\nЭто расписание взято не из объявлений, а из самого сетевого города.' : ''}`, groupId, { defaultKeyboard }, userId, null, 'medium', Class);
+        Class.lastSentSchedules.push(msgId);
 
         // if (LSSTimeout.timeout) {
         //   clearTimeout(LSSTimeout.timeout);
@@ -74,7 +84,8 @@ module.exports = {
         const i = +args[1] - 1;
         if (!Class.oldSchedule[i]) return sendMessage('нету такого расписания!!!', groupId, { defaultKeyboard }, userId, null, 'low');
         if (Class.oldSchedule[i].error) return sendMessage(`Ошибка при получении расписания:\n${Class.oldSchedule[i].error}`, groupId, { defaultKeyboard }, userId, null, 'high');
-        await sendMessage(`Неактуальное расписание на ${Class.oldSchedule[i].result.date} (${moment(Class.oldSchedule[i].result.lastUpdate).locale('ru').format('HH:mm')}) для ${Class.className}.\n\nВсего уроков: ${Class.oldSchedule[i].result.totalLessons}, начинаются в ${Class.oldSchedule[i].result.startTime}${Class.oldSchedule[i].result.room ? `, каб. ${Class.oldSchedule[i].result.room}` : ''}.${Class.notes[Class.oldSchedule[i].result.filename] ? `${`\n\nЗаметка: ${Class.notes[Class.oldSchedule[i].result.filename]} ⚠️`}` : ''}\n\n\n${Class.oldSchedule[i].result.schedule.join('\n')}${Class.oldSchedule[i].result.distant ? '\n\nЭто расписание взято не из объявлений, а из самого сетевого города.' : ''}`, groupId, { defaultKeyboard }, userId, null, 'medium');
+        const msgId = await sendMessage(`Неактуальное расписание на ${Class.oldSchedule[i].result.date} (${moment(Class.oldSchedule[i].result.lastUpdate).locale('ru').format('HH:mm')}) для ${Class.className}.\n\nВсего уроков: ${Class.oldSchedule[i].result.totalLessons}, начинаются в ${Class.oldSchedule[i].result.startTime}${Class.oldSchedule[i].result.room ? `, каб. ${Class.oldSchedule[i].result.room}` : ''}.${Class.notes[Class.oldSchedule[i].result.filename] ? `${`\n\nЗаметка: ${Class.notes[Class.oldSchedule[i].result.filename]} ⚠️`}` : ''}\n\n\n${Class.oldSchedule[i].result.schedule.join('\n')}${Class.oldSchedule[i].result.distant ? '\n\nЭто расписание взято не из объявлений, а из самого сетевого города.' : ''}`, groupId, { defaultKeyboard }, userId, null, 'medium', Class);
+        Class.lastSentSchedules.push(msgId);
         return;
       } catch (error) {
         let keyboard = defaultKeyboard;

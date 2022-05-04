@@ -35,7 +35,9 @@ module.exports = {
         username: args[1],
         password: args[2],
         lastSeenSchedule: null,
-        enableRedirect: false
+        enableRedirect: false,
+        bannedUsers: [],
+        lastSentSchedules: [],
       });
 
       startInterval(groupId, classes);
@@ -50,6 +52,7 @@ module.exports = {
       Class.schedule = null;
       Class.oldSchedule = [];
       Class.lastSeenSchedule = null;
+      Class.lastSentSchedules = [];
 
       if (args[2]) {
         Class.username = args[1];
