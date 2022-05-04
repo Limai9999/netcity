@@ -17,8 +17,9 @@ module.exports = {
     const bannedTryedUse = Class.bannedUsers.find(item => item.userId === userId);
     if (bannedTryedUse) {
       console.log('try');
-      removeAllLastSchedules(Class.lastSentSchedules, groupId);
-      return sendMessage('Вы заблокированы, поэтому недавно полученные расписания удалены.', groupId, { defaultKeyboard }, userId, null, 'low');
+      await removeAllLastSchedules(Class.lastSentSchedules, groupId);
+      Class.lastSentSchedules.splice(0, Class.lastSentSchedules.length);
+      return sendMessage('Вы забанены.', groupId, { defaultKeyboard }, userId, null, 'low');
     }
 
     const todayDate = [

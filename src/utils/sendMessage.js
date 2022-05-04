@@ -23,12 +23,13 @@ async function sendMessage(message, peer_ids, additionallyData = null, userId = 
       // cleaning if there are more than 7 last sent schedules
       if (lssLength >= 5) {
         console.log('more than 5');
-        removeAllLastSchedules(Class.lastSentSchedules, peer_ids);
+        await removeAllLastSchedules(Class.lastSentSchedules, peer_ids);
         // remove all elements from array
         Class.lastSentSchedules.splice(0, lssLength);
 
         // send message to vk about cleaning
-        sendMessage('Удалены старые расписания, т.к их слишком много.', peer_ids, { defaultKeyboard: Class.defaultKeyboard }, userId, true, 'low');
+        const msg = 'За короткий промежуток времени было отправлено много сообщений с расписанием. Предыдущие сообщения были удалены.';
+        sendMessage(msg, peer_ids, { defaultKeyboard: Class.defaultKeyboard }, userId, true, 'low');
       }
 
       // if (bannedTryedUse) {

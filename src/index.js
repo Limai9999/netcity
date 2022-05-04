@@ -121,7 +121,7 @@ for (let i = 0; i < classes.length; i++) {
   Class.lastUpdate = false;
   Class.lastSeenSchedule = null;
   Class.oldSchedule = [];
-  Class.lastSentSchedule = [];
+  Class.lastSentSchedules = [];
 
   // lastSeens.push({groupId: config.classes[i].groupId, timeout: null});
 
