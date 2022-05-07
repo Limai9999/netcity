@@ -4,7 +4,7 @@ async function parse(filename, className) {
   try {
     // открытие файла
     const workbook = new Excel.Workbook();
-    await workbook.xlsx.readFile(`./src/xlsxfiles/${filename}`);
+    await workbook.xlsx.readFile(`./src/xlsxFiles/${filename}`);
 
     let classColumn = null;
 
