@@ -58,7 +58,7 @@ function start() {
 function startPolling(connection) {
   console.log('Polling started');
   connection.on('message_new', async (msgData) => {
-    console.log(msgData);
+    // console.log(msgData);
     let {messagePayload, peerId, conversationMessageId, text, senderId} = msgData;
     text = text || '';
     peerId = peerId.toString() || '';
