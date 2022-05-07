@@ -1,0 +1,35 @@
+{
+  "name": "new_netcity",
+  "version": "1.0.0",
+  "description": "VK Bot for NetCity",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node src/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Limai9999/netcity.git"
+  },
+  "author": "Limai",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Limai9999/netcity/issues"
+  },
+  "homepage": "https://github.com/Limai9999/netcity#readme",
+  "dependencies": {
+    "axios": "^0.27.2",
+    "crypto-js": "^4.1.1",
+    "dotenv": "^16.0.0",
+    "exceljs": "^4.3.0",
+    "moment": "^2.29.3",
+    "mongoose": "^6.3.2",
+    "puppeteer": "^13.7.0",
+    "qs": "^6.10.3",
+    "vk-io": "^4.5.2"
+  },
+  "devDependencies": {
+    "eslint": "^8.14.0",
+    "eslint-config-google": "^0.14.0"
+  }
+}
