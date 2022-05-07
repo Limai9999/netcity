@@ -69,7 +69,7 @@ function startPolling(connection) {
     const args = text.split(/ +/) || [];
     const commandName = args.shift().toLowerCase();
 
-    vk.handleMessage(msgData, args, commandName);
+    await vk.handleMessage(msgData, args, commandName);
 
     const isPolling = await classes.isPolling(peerId);
     if (!isPolling) return console.log('GOT MESSAGE WHILE NOT POLLING');
