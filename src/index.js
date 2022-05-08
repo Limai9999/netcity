@@ -48,7 +48,9 @@ function start() {
   vk.start().then(async (connection) => {
     const allClasses = await classes.getAllClasses();
     await Promise.all(allClasses.map(async (Class, index) => {
-      await startAutoUpdate({id: Class.id, vk, classes, index});
+      const id = Class.id;
+      await classes.cleanLastSentMessages(id);
+      await startAutoUpdate({id, vk, classes, index});
     }));
 
     return startPolling(connection);
