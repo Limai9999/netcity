@@ -3,125 +3,133 @@ const parseSchedule = require('./parseSchedule');
 
 const {Keyboard} = require('vk-io');
 
-async function getDataFromNetCity({login, password, className, vk, classes, peerId}) {
-  // Error if no login or password
-  if (!login || !password) throw new Error('Не указаны логин и пароль.');
+async function getDataFromNetCity({vk, classes, peerId}) {
+  try {
+    const {login, password} = await classes.getNetCityData(peerId);
+    const className = await classes.getClassName(peerId);
 
-  const test = false;
-  const distant = false;
+    // Error if no login or password
+    if (!login || !password || !className) throw new Error('Не указаны логин, пароль или имя класса.');
 
-  // Settting Already getting data flag
-  await classes.setAlreadyGettingData(peerId, true);
+    const test = false;
+    const distant = false;
 
-  const previousSchedule = await classes.getSchedule(peerId);
+    // Settting Already getting data flag
+    await classes.setAlreadyGettingData(peerId, true);
 
-  // Cleaning previous schedule and homework
-  await classes.cleanSchedule(peerId);
-  await classes.cleanHomework(peerId);
-  const data = await downloadDataFromNetCity(login, password, distant, test);
+    const previousSchedule = await classes.getSchedule(peerId);
 
-  // Break if no data
-  if (!data) return false;
-  // if (!data.schedule.length) return null;
+    // Cleaning previous schedule and homework
+    await classes.cleanSchedule(peerId);
+    await classes.cleanHomework(peerId);
+    const data = await downloadDataFromNetCity(login, password, distant, test);
 
-  // Parsing schedule
-  const newSchedule = await Promise.all(data.schedule.map(async (scheduleFile) => {
-    const {filename, err, status} = scheduleFile;
-    if (!status) return {status, err, filename};
+    // Break if no data
+    if (!data) return false;
+    // if (!data.schedule.length) return null;
 
-    const schedule = await parseSchedule(filename, className);
-    return schedule;
-  }));
+    // Parsing schedule
+    const newSchedule = await Promise.all(data.schedule.map(async (scheduleFile) => {
+      const {filename, err, status} = scheduleFile;
+      if (!status) return {status, err, filename};
 
-  // Saving schedule
-  await Promise.all(newSchedule.map(async (schedule) => {
-    await classes.addSchedule(schedule, peerId);
-  }));
-  // Saving homework
-  await classes.setHomework(data.homework, peerId);
-  // Saving last update date
-  await classes.setLastDataUpdate(peerId, Date.now());
+      const schedule = await parseSchedule(filename, className);
+      return schedule;
+    }));
 
-  // Settting Already getting data flag
-  await classes.setAlreadyGettingData(peerId, false);
+    // Saving schedule
+    await Promise.all(newSchedule.map(async (schedule) => {
+      await classes.addSchedule(schedule, peerId);
+    }));
+    // Saving homework
+    await classes.setHomework(data.homework, peerId);
+    // Saving last update date
+    await classes.setLastDataUpdate(peerId, Date.now());
 
-  // console.log('ps', previousSchedule);
-  // console.log('new', newSchedule);
+    // Settting Already getting data flag
+    await classes.setAlreadyGettingData(peerId, false);
 
-  newSchedule.map(async (New) => {
-    const Old = previousSchedule.find((Old) => Old.filename === New.filename);
-    if (!Old) return;
+    // console.log('ps', previousSchedule);
+    // console.log('new', newSchedule);
 
-    const oldParsed = Old.schedule.join('\n');
-    const newParsed = New.schedule.join('\n');
+    newSchedule.map(async (New) => {
+      const Old = previousSchedule.find((Old) => Old.filename === New.filename);
+      if (!Old) return;
 
-    if (oldParsed === newParsed) return;
+      const oldParsed = Old.schedule.join('\n');
+      const newParsed = New.schedule.join('\n');
 
-    console.log('SCHEDULE CHANGED', New.filename);
+      if (oldParsed === newParsed) return;
 
-    await classes.cleanOldSchedule(peerId);
-    await classes.addOldSchedule(Old, peerId);
+      console.log('SCHEDULE CHANGED', New.filename);
 
-    const keyboard = Keyboard.builder()
-        .textButton({
-          label: 'Старое расписание',
-          payload: {
-            button: 'oldschedule',
-            filename: Old.filename,
-          },
-          color: Keyboard.NEGATIVE_COLOR,
-        })
-        .row()
-        .textButton({
-          label: 'Новое расписание',
-          payload: {
-            button: 'chooseschedule',
-            filename: New.filename,
-          },
-          color: Keyboard.POSITIVE_COLOR,
-        })
-        .inline();
+      await classes.cleanOldSchedule(peerId);
+      await classes.addOldSchedule(Old, peerId);
 
-    const changedList = [];
-    if (Old.totalLessons !== New.totalLessons) changedList.push(`количество уроков (было ${Old.totalLessons}, стало ${New.totalLessons})`);
-    if (Old.room !== New.room) changedList.push(`кабинет (был ${Old.room}, стал ${New.room})`);
-    if (Old.startTime !== New.startTime) changedList.push(`время начала уроков (было ${Old.startTime}, стало ${New.startTime})`);
+      const keyboard = Keyboard.builder()
+          .textButton({
+            label: 'Старое расписание',
+            payload: {
+              button: 'oldschedule',
+              filename: Old.filename,
+            },
+            color: Keyboard.NEGATIVE_COLOR,
+          })
+          .row()
+          .textButton({
+            label: 'Новое расписание',
+            payload: {
+              button: 'chooseschedule',
+              filename: New.filename,
+            },
+            color: Keyboard.POSITIVE_COLOR,
+          })
+          .inline();
 
-    const lessonsOld = Old.schedule.map((oldLesson) => {
-      return oldLesson.split('-')[2].trim();
+      const changedList = [];
+      if (Old.totalLessons !== New.totalLessons) changedList.push(`количество уроков (было ${Old.totalLessons}, стало ${New.totalLessons})`);
+      if (Old.room !== New.room) changedList.push(`кабинет (был ${Old.room}, стал ${New.room})`);
+      if (Old.startTime !== New.startTime) changedList.push(`время начала уроков (было ${Old.startTime}, стало ${New.startTime})`);
+
+      const lessonsOld = Old.schedule.map((oldLesson) => {
+        return oldLesson.split('-')[2].trim();
+      });
+      const lessonsNew = New.schedule.map((newlesson) => {
+        return newlesson.split('-')[2].trim();
+      });
+
+      let check = true;
+      lessonsNew.map((newlesson) => {
+        if (lessonsOld.find((e) => e === newlesson) || newlesson === '') return;
+        changedList.push(`добавлен урок: "${newlesson}"`);
+        check = false;
+      });
+      lessonsOld.map((oldLesson) => {
+        if (lessonsNew.find((e) => e === oldLesson) || oldLesson === '') return;
+        changedList.push(`убран урок: "${oldLesson}"`);
+        check = false;
+      });
+
+      for (let i = 0; i < lessonsOld.length; i++) {
+        if (lessonsOld[i] === lessonsNew[i]) continue;
+        if (check) changedList.push(`изменен урок: "${lessonsOld[i]}" -> "${lessonsNew[i]}"`);
+      }
+
+      const result = `@all, Расписание на ${New.date} изменилось.\n\nИзменения:\n${changedList.join('\n')}`;
+
+      await vk.sendMessage({
+        message: result,
+        peerId,
+        keyboard,
+        priority: 'high',
+      });
     });
-    const lessonsNew = New.schedule.map((newlesson) => {
-      return newlesson.split('-')[2].trim();
-    });
 
-    let check = true;
-    lessonsNew.map((newlesson) => {
-      if (lessonsOld.find((e) => e === newlesson) || newlesson === '') return;
-      changedList.push(`добавлен урок: "${newlesson}"`);
-      check = false;
-    });
-    lessonsOld.map((oldLesson) => {
-      if (lessonsNew.find((e) => e === oldLesson) || oldLesson === '') return;
-      changedList.push(`убран урок: "${oldLesson}"`);
-      check = false;
-    });
-
-    for (let i = 0; i < lessonsOld.length; i++) {
-      if (lessonsOld[i] === lessonsNew[i]) continue;
-      if (check) changedList.push(`изменен урок: "${lessonsOld[i]}" -> "${lessonsNew[i]}"`);
-    }
-
-    const result = `@all, Расписание на ${New.date} изменилось.\n\nИзменения:\n${changedList.join('\n')}`;
-
-    await vk.sendMessage({
-      message: result,
-      peerId,
-      keyboard,
-      priority: 'high',
-    });
-  });
-
-  return newSchedule;
+    return newSchedule;
+  } catch (error) {
+    console.log('get data from net city error', error);
+    await classes.setAlreadyGettingData(peerId, false);
+  }
 }
 
 module.exports = getDataFromNetCity;

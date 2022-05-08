@@ -49,6 +49,8 @@ function start() {
     const allClasses = await classes.getAllClasses();
     await Promise.all(allClasses.map(async (Class, index) => {
       const id = Class.id;
+      await classes.setIntervalStatus(id, false);
+      await classes.setAlreadyGettingData(id, false);
       await classes.cleanLastSentMessages(id);
       await startAutoUpdate({id, vk, classes, index});
     }));

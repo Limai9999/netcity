@@ -220,6 +220,18 @@ class ClassService {
     const classData = await this.getClass(groupId);
     return classData.isPolling;
   };
+
+  getIntervalStatus = async (groupId) => {
+    const classData = await this.getClass(groupId);
+    return classData.intervalStatus;
+  };
+
+  setIntervalStatus = async (groupId, value) => {
+    const classData = await this.getClass(groupId);
+    await classData.updateOne({
+      $set: {intervalStatus: value},
+    });
+  };
 }
 
 module.exports = ClassService;

@@ -1,3 +1,5 @@
+const startAutoUpdate = require('../modules/startAutoUpdate');
+
 async function manageClass({vk, classes, args, peerId}) {
   const [className, login, password] = args;
 
@@ -40,6 +42,8 @@ async function manageClass({vk, classes, args, peerId}) {
       password,
     });
     await classes.setClassName(className, peerId);
+
+    startAutoUpdate({id: peerId, vk, classes});
 
     return vk.sendMessage({
       message: `Класс ${className} успешно добавлен.`,

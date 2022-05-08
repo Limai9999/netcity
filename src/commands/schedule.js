@@ -74,7 +74,7 @@ async function schedule({vk, classes, args = [], peerId, userId, payload, banned
 
     const getSchedule = async () => {
       if (scheduleNotGot) {
-        const data = await getDataFromNetCity({login, password, className, vk, classes, peerId});
+        const data = await getDataFromNetCity({vk, classes, peerId});
         return data;
       } else {
         return schedule;

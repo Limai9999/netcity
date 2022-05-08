@@ -29,6 +29,10 @@ const ClassSchema = new Schema({
     type: Boolean,
     default: false,
   },
+  intervalStatus: {
+    type: Boolean,
+    default: false,
+  },
   netCityData: {
     type: Object,
     default: {login: null, password: null},

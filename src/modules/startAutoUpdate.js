@@ -3,12 +3,15 @@ const getDataFromNetCity = require('./getDataFromNetCity');
 async function startAutoUpdate({id, vk, classes, index = null}) {
   if (id < 2000000000) return;
 
+  const isIntervalStarted = await classes.getIntervalStatus(id);
+  if (isIntervalStarted) return console.log(`Interval for ${id} already started.`);
+
   const {login, password} = await classes.getNetCityData(id);
   const className = await classes.getClassName(id);
 
   if (!index) {
     const Classes = await classes.getAllClasses(id);
-    index = Classes.length;
+    index = Classes.length + 1;
   }
 
   if (!login || !password || !className) return;
@@ -17,8 +20,10 @@ async function startAutoUpdate({id, vk, classes, index = null}) {
 
   console.log(`Started auto update for class: ${className} (${id}), with time interval: ${updateInterval}`);
 
+  await classes.setIntervalStatus(id, true);
+
   setInterval(() => {
-    getDataFromNetCity({login, password, className, vk, classes, peerId: id});
+    getDataFromNetCity({vk, classes, peerId: id});
   }, updateInterval);
 }
 
