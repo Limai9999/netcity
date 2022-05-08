@@ -35,6 +35,7 @@ class ClassService {
     await classData.updateOne({
       $pull: {lastSentMessages: msgId},
     });
+    console.log(`removed ${msgId} last msg classes`);
   };
 
   getLastSentMessages = async (groupId) => {
@@ -81,18 +82,19 @@ class ClassService {
   };
 
   isBanned = async (userId, groupId) => {
-    const user = await Class.findOne({id: groupId, bannedUsers: userId});
+    const classData = await this.getClass(groupId);
+    const user = classData.bannedUsers.find((user) => user.userId === userId);
     // console.log(user, user ? 'is banned' : 'is not banned');
-    if (user) return true;
-    return false;
+    if (user) return {banned: true, reason: user.reason};
+    return {banned: false};
   };
 
-  addBannedUser = async (userId, groupId) => {
+  addBannedUser = async (banData, groupId) => {
     const classData = await this.getClass(groupId);
-    const isAlreadyBanned = await this.isBanned(userId, groupId);
+    const isAlreadyBanned = await this.isBanned(banData.userId, groupId);
     if (isAlreadyBanned) return false;
     await classData.updateOne({
-      $push: {bannedUsers: userId},
+      $push: {bannedUsers: banData},
     });
     return true;
   };
@@ -102,7 +104,7 @@ class ClassService {
     const isAlreadyBanned = await this.isBanned(userId, groupId);
     if (!isAlreadyBanned) return false;
     await classData.updateOne({
-      $pull: {bannedUsers: userId},
+      $pull: {bannedUsers: {userId}},
     });
     return true;
   };

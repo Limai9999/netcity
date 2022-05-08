@@ -120,11 +120,11 @@ function startPolling(connection) {
         }
       }
 
+      const {banned, reason} = await classes.isBanned(senderId, peerId);
       if (!continuteBanned) {
-        const isBanned = await classes.isBanned(senderId, peerId);
-        if (isBanned) {
+        if (banned) {
           return vk.sendMessage({
-            message: 'Вы не можете использовать эту команду, т.к вы заблокированы.',
+            message: `Вы не можете использовать эту команду, т.к вы заблокированы.\nПричина: ${reason}`,
             peerId,
             priority: 'low',
           });
@@ -149,6 +149,7 @@ function startPolling(connection) {
         peerId,
         userId: senderId,
         payload: messagePayload,
+        banned: {banned, reason},
       });
     } catch (error) {
       vk.sendMessage({

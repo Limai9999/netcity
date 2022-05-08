@@ -7,7 +7,6 @@ async function getClassList({vk, classes, args, peerId}) {
   const usersList = await getClassUsers({vk, classes, type: 'array'});
 
   const getUserById = (id) => {
-    console.log(id, usersList);
     const user = usersList.find((user) => user.id == id);
     if (!user) return {id, name: 'Неизв.', link: 'Неизв.', resultString: 'Неизв.'};
     return user;
@@ -23,7 +22,7 @@ async function getClassList({vk, classes, args, peerId}) {
 
     const ownerName = getUserById(owner_id).link;
 
-    const bannedUsersList = bannedUsers.map((userId) => getUserById(userId).link);
+    const bannedUsersList = bannedUsers.map((banData) => getUserById(banData.userId).link);
     const bannedUsersMessage = bannedUsersList.length ? `\nЗаблокированные пользователи: ${bannedUsersList.join(', ')}` : '';
     const bannedUsersCount = bannedUsers.length;
 

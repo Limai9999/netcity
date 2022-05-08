@@ -15,9 +15,10 @@ function commandsList({vk, peerId}) {
 
     const additionalInfo = isAdminChat ? `\n${isGroup}-${isPM}-${isAdmin};${isHidden}\n` : '';
 
-    aliases = aliases.filter((alias) => alias !== name).join(', ');
+    canShowAliases = aliases.length > 0 && isAdminChat;
+    aliases = canShowAliases ? ` (${aliases.filter((alias) => alias !== name).join(', ')})` : '';
 
-    return `${name} (${aliases}) - ${description}${additionalInfo}`;
+    return `${name}${aliases} - ${description}${additionalInfo}`;
   }).filter((cmd) => cmd).join('\n');
 
   const additionalInfo = isAdminChat ? '\n\nЭмоции - только в: Группе, ЛС, Админ-чате; Скрыта' : '';

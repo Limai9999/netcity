@@ -65,6 +65,6 @@ module.exports = {
   isAdminOnly: false,
   isHiddenFromList: false,
   continuteBanned: false,
-  showInAdditionalMenu: true,
+  showInAdditionalMenu: false,
   execute: manageClass,
 };

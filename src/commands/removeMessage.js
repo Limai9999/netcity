@@ -25,7 +25,7 @@ async function removeMessage({vk, classes, args, peerId}) {
 
   // send message to executor group as result
   await vk.sendMessage({
-    message: `Сообщение №$${messageId} в беседе ${groupId} удалено.`,
+    message: `Сообщение №${messageId} в беседе ${groupId} удалено.`,
     peerId,
     type: 'user',
   });

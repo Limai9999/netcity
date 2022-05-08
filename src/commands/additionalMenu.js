@@ -6,11 +6,21 @@ async function additionalMenu({vk, peerId, payload}) {
 
   const isAdminChat = peerId == adminChat;
 
+  if (!payload) {
+    return vk.sendMessage({
+      message: 'Меню открывается только кнопкой.',
+      peerId,
+      priority: 'low',
+    });
+  }
+
   if (payload.menu === 'main') {
     return vk.sendMessage({
       message: 'Открыто обычное меню.',
       peerId,
+      keyboard: vk.getDefaultKeyboard(),
       priority: 'low',
+      saveKeyboard: true,
     });
   }
 
@@ -47,6 +57,7 @@ async function additionalMenu({vk, peerId, payload}) {
     peerId,
     keyboard,
     priority: 'low',
+    saveKeyboard: true,
   });
 }
 
@@ -59,7 +70,7 @@ module.exports = {
   isGroupOnly: true,
   isInPMOnly: false,
   isAdminOnly: false,
-  isHiddenFromList: false,
+  isHiddenFromList: true,
   continuteBanned: false,
   showInAdditionalMenu: false,
   execute: additionalMenu,

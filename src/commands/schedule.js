@@ -4,8 +4,18 @@ moment.locale('ru');
 
 const {Keyboard} = require('vk-io');
 
-async function schedule({vk, classes, args = [], peerId, userId, payload}) {
+async function schedule({vk, classes, args = [], peerId, userId, payload, banned}) {
   try {
+    if (banned.banned) {
+      await vk.removeAllLastSentMessages(peerId);
+
+      return vk.sendMessage({
+        message: `Вы не можете использовать эту команду, т.к вы заблокированы.\nПричина: ${banned.reason}`,
+        peerId,
+        priority: 'low',
+      });
+    }
+
     if (!payload) {
       return vk.sendMessage({
         message: 'Эта команда работает только через кнопки.',

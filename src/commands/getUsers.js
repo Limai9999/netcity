@@ -3,10 +3,20 @@ const getClassUsers = require('../modules/getClassUsers');
 async function getUsers({vk, classes, args, peerId}) {
   const classesWithUsers = await getClassUsers({vk, classes});
 
+  if (!classesWithUsers || !classesWithUsers.length) {
+    return vk.sendMessage({
+      message: 'Не удалось получить пользователей',
+      peerId,
+      priority: 'low',
+    });
+  }
+
   const result = classesWithUsers.map((classData) => {
     const {classId, totalMembers, members} = classData;
 
-    const resultString = `${classId}: ${totalMembers} участников:\n\n${members.resultString.join('\n')}`;
+    const membersString = members.map((member) => member.resultString).join('\n');
+
+    const resultString = `${classId}: ${totalMembers} участников:\n\n${membersString}`;
     return resultString;
   });
 
@@ -19,7 +29,7 @@ async function getUsers({vk, classes, args, peerId}) {
 
 module.exports = {
   name: 'пользователи',
-  aliases: ['getUsers'],
+  aliases: ['getusers'],
   description: 'получить список пользователей',
   requiredArgs: 0,
   usingInfo: 'Использование: пользователи',

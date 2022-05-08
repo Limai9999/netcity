@@ -16,7 +16,12 @@ async function ban({vk, classes, args, peerId}) {
     });
   }
 
-  const res = await classes.addBannedUser(userId, groupId);
+  const banData = {
+    userId,
+    reason,
+  };
+
+  const res = await classes.addBannedUser(banData, groupId);
 
   if (!res) {
     return vk.sendMessage({

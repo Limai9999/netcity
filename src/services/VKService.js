@@ -42,6 +42,7 @@ class VKService extends VK {
     this.commands = commands;
     this.adminChat = adminChat;
     this.classes = classes;
+    this.savedKeyboard = defaultKeyboard;
   }
 
   start = async () => {
@@ -57,6 +58,10 @@ class VKService extends VK {
     } catch (error) {
       console.log('VK Longpoll SERVICE ERROR:', error);
     }
+  };
+
+  getDefaultKeyboard = () => {
+    return defaultKeyboard;
   };
 
   checkIfVKIsConnected = () => {
@@ -146,12 +151,13 @@ class VKService extends VK {
     }));
   };
 
-  sendMessage = async ({message, peerId, keyboard = defaultKeyboard, priority = 'dontdelete', type = 'bot'}) => {
+  sendMessage = async ({message, peerId, keyboard, saveKeyboard = false, priority = 'dontdelete', type = 'bot'}) => {
     // https://dev.vk.com/method/messages.send
     try {
       if (type === 'bot') {
         const maxLastSentMessages = 15;
         const lastSentMessages = await this.classes.getLastSentMessages(peerId);
+        console.log('lastSentMessages lenbtgh:', lastSentMessages.length);
         if (lastSentMessages.length >= maxLastSentMessages) {
           this.sendMessage({
             message: 'Подождите...',
@@ -173,10 +179,13 @@ class VKService extends VK {
         }
       }
 
+      if (saveKeyboard) this.savedKeyboard = keyboard;
+      const sendingKeyboard = keyboard ? keyboard : this.savedKeyboard;
+
       const response = await this.api.call('messages.send', {
         message,
         peer_ids: peerId,
-        keyboard,
+        keyboard: sendingKeyboard,
         random_id: this.randomId(),
       });
 
@@ -213,6 +222,8 @@ class VKService extends VK {
     // https://dev.vk.com/method/messages.delete
     try {
       type === 'bot' ? await this.classes.removeLastSentMessage(messageId, peerId) : null;
+
+      console.log('removing message', messageId, peerId);
 
       const response = await this.api.call('messages.delete', {
         conversation_message_ids: messageId,
