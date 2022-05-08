@@ -92,7 +92,7 @@ class ClassService {
   addBannedUser = async (banData, groupId) => {
     const classData = await this.getClass(groupId);
     const isAlreadyBanned = await this.isBanned(banData.userId, groupId);
-    if (isAlreadyBanned) return false;
+    if (isAlreadyBanned.banned) return false;
     await classData.updateOne({
       $push: {bannedUsers: banData},
     });
