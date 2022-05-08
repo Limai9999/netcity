@@ -192,17 +192,21 @@ class VKService extends VK {
       const messageId = response[0].conversation_message_id;
       type === 'bot' ? await this.classes.addLastSentMessage(messageId, peerId) : null;
 
+      let removeTimeout = false;
+
       switch (priority) {
         case 'low':
-          this.removeMessageTimeout({messageId, peerId, time: 1800000});
+          removeTimeout = 20 * 60 * 1000;
           break;
         case 'medium':
-          this.removeMessageTimeout({messageId, peerId, time: 3600000});
+          removeTimeout = 60 * 60 * 1000;
           break;
         case 'high':
-          this.removeMessageTimeout({messageId, peerId, time: 28800000});
+          removeTimeout = 4 * 60 * 60 * 1000;
           break;
       }
+
+      if (removeTimeout) this.removeMessageTimeout({messageId, peerId, time: removeTimeout});
 
       return messageId;
     } catch (error) {
