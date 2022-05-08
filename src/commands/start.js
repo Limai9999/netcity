@@ -15,7 +15,7 @@ module.exports = {
   isGroupOnly: false,
   isInPMOnly: true,
   isAdminOnly: false,
-  isHiddenFromList: false,
+  isHiddenFromList: true,
   continuteBanned: false,
   showInAdditionalMenu: false,
   execute: start,
