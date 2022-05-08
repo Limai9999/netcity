@@ -43,6 +43,13 @@ class ClassService {
     return classData.lastSentMessages;
   };
 
+  cleanLastSentMessages = async (groupId) => {
+    const classData = await this.getClass(groupId);
+    await classData.updateOne({
+      $set: {lastSentMessages: []},
+    });
+  };
+
   isMessagesAreRedirecting = async (groupId) => {
     const classData = await this.getClass(groupId);
     return classData.isMessagesRedirectEnabled;
