@@ -24,7 +24,7 @@ async function weatherEvent({senderId}) {
                       'жарко жесть';
 
   const messages = [
-    `А вы вообще знали, что в Екатеринбурге в данный момент ${roundedTemp}°C, по-моему ${tempInWords}?`,
+    `А вы вообще знали, что в Екатеринбурге в данный момент ${roundedTemp}°C, по-моему это ${tempInWords}?`,
     `У меня очень важная новость: в Екатеринбурге в данный момент ${roundedTemp}°C, мне кажется это ${tempInWords}!`,
     `А [id${senderId}|ты] вообще знал, что прямо сейчас в Екатеринбурге ${roundedTemp}°C, это же ${tempInWords}, да?`,
   ];

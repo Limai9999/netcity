@@ -284,6 +284,8 @@ class VKService extends VK {
       const allMessages = await statistics.getMessagesWithoutPayload(msgData.peerId);
       const filtered = allMessages.filter(({text, args}) => args.length > 0);
 
+      if (!filtered.length) return;
+
       const {text} = filtered[Math.floor(Math.random() * filtered.length)];
       const randomWordsArray = text.split(' ');
       // took 3 random words from randomWordsArray and join them to one string
@@ -293,9 +295,9 @@ class VKService extends VK {
       secondRandomIndex < firstRandomIndex ? secondRandomIndex = firstRandomIndex : secondRandomIndex;
       let randomWords = randomWordsArray.slice(firstRandomIndex, secondRandomIndex);
 
-      !randomWords.length ? randomWords = randomWordsArray[0] : null;
+      !randomWords.length ? randomWords = [randomWordsArray[0]] : null;
 
-      const trueProbability = 0.05;
+      const trueProbability = 0.03;
       const playEvent = Math.random() < trueProbability;
       if (playEvent) {
         await this.sendMessage({
