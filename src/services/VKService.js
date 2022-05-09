@@ -161,7 +161,7 @@ class VKService extends VK {
       if (type === 'bot') {
         const maxLastSentMessages = 15;
         const lastSentMessages = await this.classes.getLastSentMessages(peerId);
-        console.log('lastSentMessages lenbtgh:', lastSentMessages.length);
+        console.log('lastSentMessages length:', lastSentMessages.length);
         if (lastSentMessages.length >= maxLastSentMessages) {
           this.sendMessage({
             message: 'Подождите...',
@@ -246,8 +246,10 @@ class VKService extends VK {
   };
 
   handleMessage = async (msgData, args, commandName) => {
+    // Saving message to statistic database
     statistics.saveMessage(msgData, args, commandName);
 
+    // check if message redirect is enabled and if it is, redirect message to admin chat
     const isRedirect = await this.classes.isMessagesAreRedirecting(msgData.peerId);
     if (isRedirect) {
       const {message, peerId, senderId} = formMessage(msgData);
