@@ -13,7 +13,8 @@ const MONGODB_URL = process.env.MONGODB_URL;
 const VK_TOKEN = process.env.VK_TOKEN;
 const ADMIN_CHAT_ID = process.env.ADMIN_CHAT_ID;
 const ADMIN_USER_ID = process.env.ADMIN_USER_ID;
-const IS_DEBUG = process.env.IS_DEBUG;
+let IS_DEBUG = process.env.IS_DEBUG;
+IS_DEBUG === 'true' ? IS_DEBUG = true : IS_DEBUG = false;
 
 // Mongo DB
 connect(MONGODB_URL, {
@@ -78,7 +79,8 @@ function startPolling(connection) {
     const args = text.split(/ +/) || [];
     const commandName = args.shift().toLowerCase();
 
-    await vk.handleMessage(msgData, args, commandName);
+    const isCanSendMessages = !(IS_DEBUG && senderId !== ADMIN_USER_ID);
+    await vk.handleMessage(msgData, args, commandName, isCanSendMessages);
 
     const isPolling = await classes.isPolling(peerId);
     if (!isPolling) return console.log('GOT MESSAGE WHILE NOT POLLING');
@@ -95,7 +97,7 @@ function startPolling(connection) {
 
     if (!command) return;
 
-    if (IS_DEBUG && senderId !== ADMIN_USER_ID) {
+    if (!isCanSendMessages) {
       return vk.sendMessage({
         message: 'Бот временно отключен. Попробуйте позже.',
         peerId,

@@ -5,8 +5,10 @@ const {VK, Keyboard} = require('vk-io');
 const StatisticsService = require('./StatisticsService');
 const statistics = new StatisticsService();
 
-// Modules
+// Utils
 const formMessage = require('../utils/formMessage');
+// Modules
+const randomEvent = require('../modules/randomEvent');
 
 // Default keyboard
 const defaultKeyboard = Keyboard.builder()
@@ -245,7 +247,7 @@ class VKService extends VK {
     }
   };
 
-  handleMessage = async (msgData, args, commandName) => {
+  handleMessage = async (msgData, args, commandName, isCanSendMessages) => {
     // Saving message to statistic database
     statistics.saveMessage(msgData, args, commandName);
 
@@ -258,6 +260,50 @@ class VKService extends VK {
         peerId: this.getAdminChat(),
         type: 'user',
       });
+    }
+
+    // sending a random event
+    const randomEventMessage = await randomEvent({
+      vk: this,
+      classes: this.classes,
+      args,
+      peerId: msgData.peerId,
+      senderId: msgData.senderId,
+      messagePayload: msgData.messagePayload,
+    });
+
+    if (!isCanSendMessages) return;
+    if (randomEventMessage) {
+      console.log(randomEventMessage);
+      this.sendMessage({
+        message: randomEventMessage,
+        peerId: msgData.peerId,
+        type: 'user',
+      });
+    } else {
+      const allMessages = await statistics.getMessagesWithoutPayload(msgData.peerId);
+      const filtered = allMessages.filter(({text, args}) => args.length > 0);
+
+      const {text} = filtered[Math.floor(Math.random() * filtered.length)];
+      const randomWordsArray = text.split(' ');
+      // took 3 random words from randomWordsArray and join them to one string
+      let firstRandomIndex = Math.floor(Math.random() * randomWordsArray.length);
+      firstRandomIndex === randomWordsArray.length - 1 ? firstRandomIndex = firstRandomIndex - 1 : firstRandomIndex;
+      let secondRandomIndex = Math.floor(Math.random() * randomWordsArray.length);
+      secondRandomIndex < firstRandomIndex ? secondRandomIndex = firstRandomIndex : secondRandomIndex;
+      let randomWords = randomWordsArray.slice(firstRandomIndex, secondRandomIndex);
+
+      !randomWords.length ? randomWords = randomWordsArray[0] : null;
+
+      const trueProbability = 0.05;
+      const playEvent = Math.random() < trueProbability;
+      if (playEvent) {
+        await this.sendMessage({
+          message: randomWords.join(' '),
+          peerId: msgData.peerId,
+          type: 'user',
+        });
+      }
     }
   };
 }

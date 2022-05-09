@@ -24,6 +24,16 @@ class StatisticsService {
     await Statistics.create(data);
     // console.log('Saved message');
   };
+
+  getStatistics = async (peerId) => {
+    const statistics = await Statistics.find({peerId});
+    return statistics;
+  };
+
+  getMessagesWithoutPayload = async (peerId) => {
+    const statistics = await Statistics.find({peerId, payload: null || undefined});
+    return Array.from(statistics);
+  };
 }
 
 module.exports = StatisticsService;
