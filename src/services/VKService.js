@@ -42,7 +42,7 @@ class VKService extends VK {
     this.commands = commands;
     this.adminChat = adminChat;
     this.classes = classes;
-    this.savedKeyboard = defaultKeyboard;
+    this.savedKeyboards = {};
   }
 
   start = async () => {
@@ -179,8 +179,8 @@ class VKService extends VK {
         }
       }
 
-      if (saveKeyboard) this.savedKeyboard = keyboard;
-      const sendingKeyboard = keyboard ? keyboard : this.savedKeyboard;
+      if (saveKeyboard) this.savedKeyboards[peerId] = keyboard;
+      const sendingKeyboard = keyboard ? keyboard : this.savedKeyboards[peerId] || this.getDefaultKeyboard();
 
       const response = await this.api.call('messages.send', {
         message,
