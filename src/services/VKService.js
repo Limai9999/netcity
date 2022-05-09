@@ -281,31 +281,32 @@ class VKService extends VK {
         type: 'user',
       });
     } else {
+      const trueProbability = 0.2;
+      const playEvent = Math.random() < trueProbability;
+      if (!playEvent) return;
       const allMessages = await statistics.getMessagesWithoutPayload(msgData.peerId);
-      const filtered = allMessages.filter(({text, args}) => args.length > 0);
+      const filtered = allMessages.filter(({text, args}) => text.length >= 7);
 
       if (!filtered.length) return;
 
       const {text} = filtered[Math.floor(Math.random() * filtered.length)];
-      const randomWordsArray = text.split(' ');
-      // took 3 random words from randomWordsArray and join them to one string
-      let firstRandomIndex = Math.floor(Math.random() * randomWordsArray.length);
-      firstRandomIndex === randomWordsArray.length - 1 ? firstRandomIndex = firstRandomIndex - 1 : firstRandomIndex;
-      let secondRandomIndex = Math.floor(Math.random() * randomWordsArray.length);
-      secondRandomIndex < firstRandomIndex ? secondRandomIndex = firstRandomIndex : secondRandomIndex;
-      let randomWords = randomWordsArray.slice(firstRandomIndex, secondRandomIndex);
-
-      !randomWords.length ? randomWords = [randomWordsArray[0]] : null;
-
-      const trueProbability = 0.1;
-      const playEvent = Math.random() < trueProbability;
-      if (playEvent) {
-        await this.sendMessage({
-          message: randomWords.join(' '),
-          peerId: msgData.peerId,
-          type: 'user',
-        });
+      const array = text.split(' ');
+      // took 3 random elements from array
+      let randomElements = [];
+      for (let i = 0; i < 3; i++) {
+        const randomIndex = Math.floor(Math.random() * array.length);
+        randomElements.push(array[randomIndex]);
+        array.splice(randomIndex, 1);
+        randomElements = randomElements.filter(Boolean);
       }
+
+      !randomElements.length ? randomElements = [array[0]] : null;
+
+      await this.sendMessage({
+        message: randomElements.join(' '),
+        peerId: msgData.peerId,
+        type: 'user',
+      });
     }
   };
 }

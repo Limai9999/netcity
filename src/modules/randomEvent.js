@@ -11,7 +11,7 @@ for (const eventFileName of eventsDir) {
 
 async function randomEvent({vk, classes, args, peerId, senderId, messagePayload, recursedTimes = 0}) {
   if (recursedTimes > 3) return false;
-  const trueProbability = 0.03;
+  const trueProbability = 0.04;
   const playEvent = Math.random() < trueProbability;
   // console.log('playEvent', playEvent);
   if (!playEvent) return;
