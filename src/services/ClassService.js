@@ -1,6 +1,10 @@
 const Class = require('../models/Class');
 
 class ClassService {
+  constructor({isDebug = false}) {
+    this.isDebug = isDebug;
+  }
+
   getClass = async (groupId = this.groupId) => {
     const classData = await Class.findOne({id: groupId});
     if (!classData) {

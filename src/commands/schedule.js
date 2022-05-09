@@ -46,7 +46,6 @@ async function schedule({vk, classes, args = [], peerId, userId, payload, banned
     }
 
     const isAlreadyGettingData = await classes.isGettingData(peerId);
-
     if (isAlreadyGettingData) {
       return vk.sendMessage({
         message: 'Подождите, получение данных уже начато.',
@@ -74,7 +73,7 @@ async function schedule({vk, classes, args = [], peerId, userId, payload, banned
 
     const getSchedule = async () => {
       if (scheduleNotGot) {
-        const data = await getDataFromNetCity({vk, classes, peerId});
+        const data = await getDataFromNetCity({vk, classes, peerId, IS_DEBUG: vk.isDebug()});
         return data;
       } else {
         return schedule;

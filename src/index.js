@@ -12,6 +12,8 @@ const ClassService = require('./services/ClassService');
 const MONGODB_URL = process.env.MONGODB_URL;
 const VK_TOKEN = process.env.VK_TOKEN;
 const ADMIN_CHAT_ID = process.env.ADMIN_CHAT_ID;
+const ADMIN_USER_ID = process.env.ADMIN_USER_ID;
+const IS_DEBUG = process.env.IS_DEBUG;
 
 // Mongo DB
 connect(MONGODB_URL, {
@@ -35,15 +37,18 @@ for (const commandFileName of commandsDir) {
 
 // VK
 let vk;
-const classes = new ClassService();
+const classes = new ClassService({
+  isDebug: IS_DEBUG,
+});
 
 function start() {
   vk = new VKService({
     token: VK_TOKEN,
-    test: false,
+    IS_DEBUG,
     commands,
     classes,
     adminChat: ADMIN_CHAT_ID,
+    adminUserId: ADMIN_USER_ID,
   });
   vk.start().then(async (connection) => {
     const allClasses = await classes.getAllClasses();
@@ -52,7 +57,7 @@ function start() {
       await classes.setIntervalStatus(id, false);
       await classes.setAlreadyGettingData(id, false);
       await classes.cleanLastSentMessages(id);
-      await startAutoUpdate({id, vk, classes, index});
+      await startAutoUpdate({id, vk, classes, index, IS_DEBUG});
     }));
 
     return startPolling(connection);
@@ -62,8 +67,8 @@ function start() {
 function startPolling(connection) {
   console.log('Polling started');
   connection.on('message_new', async (msgData) => {
-    // console.log(msgData);
     let {messagePayload, peerId, conversationMessageId, text, senderId} = msgData;
+
     text = text || '';
     peerId = peerId.toString() || '';
     senderId = senderId.toString() || '';
@@ -89,6 +94,13 @@ function startPolling(connection) {
     });
 
     if (!command) return;
+
+    if (IS_DEBUG && senderId !== ADMIN_USER_ID) {
+      return vk.sendMessage({
+        message: 'Бот временно отключен. Попробуйте позже.',
+        peerId,
+      });
+    }
 
     try {
       // removing command's executor message

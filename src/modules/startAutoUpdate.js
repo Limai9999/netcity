@@ -1,6 +1,6 @@
 const getDataFromNetCity = require('./getDataFromNetCity');
 
-async function startAutoUpdate({id, vk, classes, index = null}) {
+async function startAutoUpdate({id, vk, classes, index = null, IS_DEBUG = false}) {
   if (id < 2000000000) return;
 
   const isIntervalStarted = await classes.getIntervalStatus(id);
@@ -23,7 +23,7 @@ async function startAutoUpdate({id, vk, classes, index = null}) {
   await classes.setIntervalStatus(id, true);
 
   setInterval(() => {
-    getDataFromNetCity({vk, classes, peerId: id});
+    getDataFromNetCity({vk, classes, peerId: id, IS_DEBUG});
   }, updateInterval);
 }
 

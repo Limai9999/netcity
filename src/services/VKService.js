@@ -34,9 +34,9 @@ const defaultKeyboard = Keyboard.builder()
     });
 
 class VKService extends VK {
-  constructor({token, test = false, commands = [], adminChat = null, classes = null}) {
+  constructor({token, IS_DEBUG = false, commands = [], adminChat = null, classes = null}) {
     super({token});
-    this.test = test;
+    this.IS_DEBUG = IS_DEBUG;
     this.token = token;
     this.isConnected = false;
     this.commands = commands;
@@ -51,13 +51,17 @@ class VKService extends VK {
 
       this.isConnected = this.updates.isStarted;
 
-      const conType = this.test ? 'TEST' : 'PRODUCTION';
+      const conType = this.IS_DEBUG ? 'DEBUG' : 'PRODUCTION';
       console.log(`VK Longpoll connected in ${conType} as ${this.getScreenName()}, TOKEN: ${this.token}`);
 
       return this.updates;
     } catch (error) {
       console.log('VK Longpoll SERVICE ERROR:', error);
     }
+  };
+
+  isDebug = () => {
+    return this.IS_DEBUG;
   };
 
   getDefaultKeyboard = () => {
