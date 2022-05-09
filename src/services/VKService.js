@@ -297,7 +297,7 @@ class VKService extends VK {
 
       !randomWords.length ? randomWords = [randomWordsArray[0]] : null;
 
-      const trueProbability = 0.08;
+      const trueProbability = 0.1;
       const playEvent = Math.random() < trueProbability;
       if (playEvent) {
         await this.sendMessage({
