@@ -7,7 +7,6 @@ const StatisticsSchema = new Schema({
   },
   fullMessage: {
     type: Object,
-    required: true,
   },
   messageId: {
     type: Number,
@@ -21,7 +20,6 @@ const StatisticsSchema = new Schema({
   },
   date: {
     type: Number,
-    required: true,
   },
   userId: {
     type: Number,

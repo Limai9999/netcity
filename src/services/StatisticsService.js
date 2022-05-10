@@ -3,11 +3,13 @@ const Statistics = require('../models/Statistics');
 class StatisticsService {
   saveMessage = async (msgData, args, commandName) => {
     const {peerId, conversationMessageId, message: {text, attachments}, createdAt, senderId, messagePayload, message} = msgData;
+
     const date = createdAt * 1000;
     const userId = senderId;
     const payload = messagePayload;
     const messageId = conversationMessageId;
     const fullMessage = message;
+
     const data = {
       peerId,
       fullMessage,
@@ -22,7 +24,6 @@ class StatisticsService {
     };
 
     await Statistics.create(data);
-    // console.log('Saved message');
   };
 
   getStatistics = async (peerId) => {
@@ -31,8 +32,12 @@ class StatisticsService {
   };
 
   getMessagesWithoutPayload = async (peerId) => {
-    const statistics = await Statistics.find({peerId, payload: null || undefined});
+    const statistics = await Statistics.find({peerId, payload: undefined});
     return Array.from(statistics);
+  };
+
+  addStatistics = async (data) => {
+    await Statistics.create(data);
   };
 }
 

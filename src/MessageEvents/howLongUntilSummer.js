@@ -8,6 +8,7 @@ function howLongUntilSummer() {
   const todayTime = new Date();
   const summerTime = new Date(todayTime.getFullYear(), summer.month - 1, summer.day);
   const millisecondsTime = summerTime - todayTime;
+
   let days = Math.floor(millisecondsTime / (1000 * 60 * 60 * 24));
   let hours = Math.floor(millisecondsTime / (1000 * 60 * 60));
   let minutes = Math.floor(millisecondsTime / (1000 * 60));
