@@ -1,10 +1,6 @@
 // VK library
 const {VK, Keyboard} = require('vk-io');
 
-// Services
-const StatisticsService = require('./StatisticsService');
-const statistics = new StatisticsService();
-
 // Utils
 const formMessage = require('../utils/formMessage');
 // Modules
@@ -36,7 +32,7 @@ const defaultKeyboard = Keyboard.builder()
     });
 
 class VKService extends VK {
-  constructor({token, IS_DEBUG = false, commands = [], adminChat = null, classes = null}) {
+  constructor({token, IS_DEBUG = false, commands = [], adminChat = null, classes = null, statistics = null}) {
     super({token});
     this.IS_DEBUG = IS_DEBUG;
     this.token = token;
@@ -44,6 +40,7 @@ class VKService extends VK {
     this.commands = commands;
     this.adminChat = adminChat;
     this.classes = classes;
+    this.statistics = statistics;
     this.savedKeyboards = {};
   }
 
@@ -248,11 +245,13 @@ class VKService extends VK {
   };
 
   handleMessage = async (msgData, args, commandName, isCanSendMessages) => {
+    const {peerId, conversationMessageId, senderId, messagePayload} = msgData;
     // Saving message to statistic database
-    statistics.saveMessage(msgData, args, commandName);
+    await this.statistics.saveMessage(msgData, args, commandName);
+    await this.classes.setUserLastSentMessage(peerId, conversationMessageId);
 
     // check if message redirect is enabled and if it is, redirect message to admin chat
-    const isRedirect = await this.classes.isMessagesAreRedirecting(msgData.peerId);
+    const isRedirect = await this.classes.isMessagesAreRedirecting(peerId);
     if (isRedirect) {
       const {message, peerId, senderId} = formMessage(msgData);
       this.sendMessage({
@@ -267,9 +266,9 @@ class VKService extends VK {
       vk: this,
       classes: this.classes,
       args,
-      peerId: msgData.peerId,
-      senderId: msgData.senderId,
-      messagePayload: msgData.messagePayload,
+      peerId,
+      senderId,
+      messagePayload,
     });
 
     if (!isCanSendMessages) return;
@@ -277,14 +276,14 @@ class VKService extends VK {
       console.log(randomEventMessage);
       this.sendMessage({
         message: randomEventMessage,
-        peerId: msgData.peerId,
+        peerId,
         type: 'user',
       });
     } else {
       const trueProbability = 0.2;
       const playEvent = Math.random() < trueProbability;
       if (!playEvent) return;
-      const allMessages = await statistics.getMessagesWithoutPayload(msgData.peerId);
+      const allMessages = await this.statistics.getMessagesWithoutPayload(peerId);
       const filtered = allMessages.filter(({text, args}) => text.length >= 10 && args.length >= 1);
       if (!filtered.length) return;
 
@@ -308,7 +307,7 @@ class VKService extends VK {
 
       await this.sendMessage({
         message,
-        peerId: msgData.peerId,
+        peerId,
         type: 'user',
       });
     }

@@ -26,8 +26,14 @@ class StatisticsService {
     await Statistics.create(data);
   };
 
-  getStatistics = async (peerId) => {
+  getStatistics = async () => {
+    const statistics = await Statistics.find();
+    return statistics;
+  };
+
+  getOneGroupStatistics = async (peerId) => {
     const statistics = await Statistics.find({peerId});
+    if (!statistics) return [];
     return statistics;
   };
 

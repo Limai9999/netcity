@@ -27,6 +27,20 @@ class ClassService {
     console.log('Updated class data');
   };
 
+  getUserLastSentMessage = async (groupId) => {
+    const classData = await this.getClass(groupId);
+    console.log(classData.lastUserSentMessage, 1);
+    return classData.lastUserSentMessage;
+  };
+
+  setUserLastSentMessage = async (groupId, messageId) => {
+    const classData = await this.getClass(groupId);
+    console.log(messageId, 2);
+    await classData.updateOne({
+      $set: {lastUserSentMessage: messageId},
+    });
+  };
+
   addLastSentMessage = async (msgId, groupId) => {
     const classData = await this.getClass(groupId);
     await classData.updateOne({

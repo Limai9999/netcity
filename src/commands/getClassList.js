@@ -1,6 +1,6 @@
 const getClassUsers = require('../modules/getClassUsers');
 
-async function getClassList({vk, classes, args, peerId}) {
+async function getClassList({vk, classes, statistics, args, peerId}) {
   const groupsModels = await classes.getAllClasses();
   const groups = groupsModels.filter(({id}) => id > 2000000000);
 
@@ -8,7 +8,7 @@ async function getClassList({vk, classes, args, peerId}) {
 
   const getUserById = (id) => {
     const user = usersList.find((user) => user.id == id);
-    if (!user) return {id, name: 'Неизв.', link: 'Неизв.', resultString: 'Неизв.'};
+    if (!user) return {id, name: id, link: `[id${id}|Неизв. имя]`, resultString: 'Неизв.'};
     return user;
   };
 
@@ -26,7 +26,10 @@ async function getClassList({vk, classes, args, peerId}) {
     const bannedUsersMessage = bannedUsersList.length ? `\nЗаблокированные пользователи: ${bannedUsersList.join(', ')}` : '';
     const bannedUsersCount = bannedUsers.length;
 
-    const result = `ID: ${id}, Название: ${ClassName}, Количество участников: ${members_count}\nИмя владельца: ${ownerName}\nРедирект сообщений: ${isRedirect}; Заблокировано: ${bannedUsersCount}${bannedUsersMessage}`;
+    const totalMessages = await classes.getUserLastSentMessage(id);
+    const totalMessagesSaved = (await statistics.getOneGroupStatistics(id)).length;
+
+    const result = `ID: ${id}, Название: ${ClassName}, Количество участников: ${members_count}\nИмя владельца: ${ownerName}\nРедирект сообщений: ${isRedirect}; Заблокировано: ${bannedUsersCount}${bannedUsersMessage}\nВсего сообщений: ${totalMessages}, сохранено: ${totalMessagesSaved}`;
 
     return result;
   }));

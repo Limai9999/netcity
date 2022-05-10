@@ -7,6 +7,7 @@ const startAutoUpdate = require('./modules/startAutoUpdate');
 
 const VKService = require('./services/VKService');
 const ClassService = require('./services/ClassService');
+const StatisticsService = require('./services/StatisticsService');
 
 // Data
 const MONGODB_URL = process.env.MONGODB_URL;
@@ -41,6 +42,7 @@ let vk;
 const classes = new ClassService({
   isDebug: IS_DEBUG,
 });
+const statistics = new StatisticsService();
 
 function start() {
   vk = new VKService({
@@ -48,6 +50,7 @@ function start() {
     IS_DEBUG,
     commands,
     classes,
+    statistics,
     adminChat: ADMIN_CHAT_ID,
     adminUserId: ADMIN_USER_ID,
   });
@@ -163,6 +166,7 @@ function startPolling(connection) {
       command.execute({
         vk,
         classes,
+        statistics,
         args,
         peerId,
         userId: senderId,

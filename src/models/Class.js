@@ -50,6 +50,10 @@ const ClassSchema = new Schema({
   lastSentMessages: {
     type: Array,
   },
+  lastUserSentMessage: {
+    type: Number,
+    default: 0,
+  },
   isPolling: {
     type: Boolean,
     default: true,
