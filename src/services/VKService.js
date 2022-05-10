@@ -285,25 +285,29 @@ class VKService extends VK {
       const playEvent = Math.random() < trueProbability;
       if (!playEvent) return;
       const allMessages = await statistics.getMessagesWithoutPayload(msgData.peerId);
-      const filtered = allMessages.filter(({text, args}) => text.length >= 7);
-
+      const filtered = allMessages.filter(({text, args}) => text.length >= 10 && args.length >= 1);
       if (!filtered.length) return;
 
       const {text} = filtered[Math.floor(Math.random() * filtered.length)];
-      const array = text.split(' ');
-      // took 3 random elements from array
+      const textArray = text.split(' ');
+
+      // take random elements from textArray
       let randomElements = [];
-      for (let i = 0; i < 3; i++) {
-        const randomIndex = Math.floor(Math.random() * array.length);
-        randomElements.push(array[randomIndex]);
-        array.splice(randomIndex, 1);
-        randomElements = randomElements.filter(Boolean);
+      for (let i = 0; i < textArray.length; i++) {
+        if (Math.random() < 0.7) {
+          randomElements.push(textArray[i]);
+        }
       }
 
-      !randomElements.length ? randomElements = [array[0]] : null;
+      const randomIndex = Math.floor(Math.random() * textArray.length);
+      !randomElements.length ? randomElements = [textArray[randomIndex]] : null;
+
+      const message = randomElements.join(' ');
+
+      console.log(message);
 
       await this.sendMessage({
-        message: randomElements.join(' '),
+        message,
         peerId: msgData.peerId,
         type: 'user',
       });
