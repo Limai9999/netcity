@@ -250,6 +250,18 @@ class ClassService {
       $set: {intervalStatus: value},
     });
   };
+
+  setUsers = async (users, groupId) => {
+    const classData = await this.getClass(groupId);
+    await classData.updateOne({
+      $set: {users: users},
+    });
+  };
+
+  getUsers = async (groupId) => {
+    const classData = await this.getClass(groupId);
+    return classData.users;
+  };
 }
 
 module.exports = ClassService;

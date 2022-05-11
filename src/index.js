@@ -82,10 +82,10 @@ function startPolling(connection) {
     const args = text.split(/ +/) || [];
     const commandName = args.shift().toLowerCase();
 
-    const isCanSendMessages = !(IS_DEBUG && senderId !== ADMIN_USER_ID);
-    await vk.handleMessage(msgData, args, commandName, isCanSendMessages);
-
     const isPolling = await classes.isPolling(peerId);
+    const isCanSendMessages = !(IS_DEBUG && senderId !== ADMIN_USER_ID);
+    await vk.handleMessage(msgData, args, commandName, isCanSendMessages, isPolling);
+
     if (!isPolling) return console.log('GOT MESSAGE WHILE NOT POLLING');
 
     const command = commands.find((cmd) => {

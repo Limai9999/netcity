@@ -1,4 +1,4 @@
-async function getClassUsers({vk, classes, type}) {
+async function getClassUsers({vk, classes, type, peerId}) {
   const allClasses = await classes.getAllClasses();
   const classesIds = allClasses
       .map((classData) => classData.id)
@@ -40,6 +40,8 @@ async function getClassUsers({vk, classes, type}) {
 
     return resultArray;
   }
+
+  // await classes.setUsers(result, peerId);
 
   return result;
 }

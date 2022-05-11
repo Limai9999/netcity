@@ -244,7 +244,7 @@ class VKService extends VK {
     }
   };
 
-  handleMessage = async (msgData, args, commandName, isCanSendMessages) => {
+  handleMessage = async (msgData, args, commandName, isCanSendMessages, isPolling) => {
     const {peerId, conversationMessageId, senderId, messagePayload} = msgData;
     // Saving message to statistic database
     await this.statistics.saveMessage(msgData, args, commandName);
@@ -255,16 +255,18 @@ class VKService extends VK {
     if (isRedirect) {
       const {message, peerId, senderId} = formMessage(msgData);
       this.sendMessage({
-        message: `(${peerId}) - ${senderId}: ${message}`,
+        message: `(${peerId}) - [id${senderId}|${senderId}]: ${message}`,
         peerId: this.getAdminChat(),
         type: 'user',
       });
     }
 
+    if (!isPolling) return;
     // sending a random event
     const randomEventMessage = await randomEvent({
       vk: this,
       classes: this.classes,
+      statistics: this.statistics,
       args,
       peerId,
       senderId,
@@ -276,37 +278,6 @@ class VKService extends VK {
       console.log(randomEventMessage);
       this.sendMessage({
         message: randomEventMessage,
-        peerId,
-        type: 'user',
-      });
-    } else {
-      const trueProbability = 0.2;
-      const playEvent = Math.random() < trueProbability;
-      if (!playEvent) return;
-      const allMessages = await this.statistics.getMessagesWithoutPayload(peerId);
-      const filtered = allMessages.filter(({text, args}) => text.length >= 10 && args.length >= 1);
-      if (!filtered.length) return;
-
-      const {text} = filtered[Math.floor(Math.random() * filtered.length)];
-      const textArray = text.split(' ');
-
-      // take random elements from textArray
-      let randomElements = [];
-      for (let i = 0; i < textArray.length; i++) {
-        if (Math.random() < 0.7) {
-          randomElements.push(textArray[i]);
-        }
-      }
-
-      const randomIndex = Math.floor(Math.random() * textArray.length);
-      !randomElements.length ? randomElements = [textArray[randomIndex]] : null;
-
-      const message = randomElements.join(' ');
-
-      console.log(message);
-
-      await this.sendMessage({
-        message,
         peerId,
         type: 'user',
       });
