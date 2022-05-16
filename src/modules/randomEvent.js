@@ -10,6 +10,8 @@ for (const eventFileName of eventsDir) {
 }
 
 async function randomEvent({vk, classes, statistics, args, peerId, senderId, messagePayload, recursedTimes = 0}) {
+  if (peerId < 2000000000) return;
+
   // рандомнное событие из папки MessageEvents
   if (recursedTimes > 3) return false;
   let trueProbability = 0.03;
