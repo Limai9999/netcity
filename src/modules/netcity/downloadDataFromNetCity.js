@@ -1,9 +1,9 @@
 const puppeteer = require('puppeteer');
 const moment = require('moment');
-const wait = require('../utils/wait');
+const wait = require('../../utils/wait');
 
-const downloadFile = require('./downloadFile');
-const passwordManager = require('./passwordManager');
+const downloadFile = require('../downloadFile');
+const passwordManager = require('../passwordManager');
 
 const qs = require('qs');
 

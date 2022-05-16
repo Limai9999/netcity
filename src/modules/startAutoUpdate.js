@@ -1,4 +1,4 @@
-const getDataFromNetCity = require('./getDataFromNetCity');
+const getDataFromNetCity = require('./netcity/getDataFromNetCity');
 
 async function startAutoUpdate({id, vk, classes, index = null, IS_DEBUG = false}) {
   if (id < 2000000000) return;
