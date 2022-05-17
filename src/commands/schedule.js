@@ -122,7 +122,7 @@ async function schedule({vk, classes, args = [], peerId, userId, payload, banned
       noticeIfNoScheduleForToday ? today += ' - На сегодня расписания нет.' : null;
 
       let lastUpdate = await classes.getLastDataUpdate(peerId);
-      lastUpdate = `Последний раз обновлено в: ${moment(lastUpdate).format('DD.MM, HH:mm:ss')}`;
+      lastUpdate = `Последний раз обновлено: ${moment(lastUpdate).fromNow()}`;
 
       const scheduleMessage = `${totalFilesMessage} с расписанием для ${className}.\n\n${today}\n\n${scheduleFilenames}\n\n${lastUpdate}`;
 
