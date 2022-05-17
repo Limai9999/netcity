@@ -45,12 +45,14 @@ async function manageClass({vk, classes, args, peerId}) {
 
     startAutoUpdate({id: peerId, vk, classes});
 
+    await classes.cleanSchedule(peerId);
     return vk.sendMessage({
       message: `Класс ${className} успешно добавлен.`,
       peerId,
     });
   }
 
+  await classes.cleanSchedule(peerId);
   await classes.setClassName(className, peerId);
   return vk.sendMessage({
     message: `Класс успешно изменен на ${className}.`,

@@ -124,7 +124,7 @@ async function parse(filename, className) {
     } catch (error) {
       console.log('error parseSchedule', error, filename);
       return {
-        error: `Ошибка при изменении имени файла.\n\n${error}`,
+        error: `Ошибка при получении имени файла.\n\n${error}`,
         filename,
       };
     }
@@ -147,7 +147,7 @@ async function parse(filename, className) {
     console.log('error parseSchedule', error, filename);
     return {
       status: false,
-      error,
+      error: error.message,
       filename,
     };
   }

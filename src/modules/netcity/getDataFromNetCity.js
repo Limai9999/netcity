@@ -30,8 +30,14 @@ async function getDataFromNetCity({vk, classes, peerId, IS_DEBUG = false}) {
 
     // Parsing schedule
     const newSchedule = await Promise.all(data.schedule.map(async (scheduleFile) => {
-      const {filename, err, status} = scheduleFile;
-      if (!status) return {status, err, filename};
+      const {filename, status} = scheduleFile;
+      if (!status) {
+        return {
+          filename,
+          status,
+          error: error.message || error || 'Неопознанная ошибка',
+        };
+      };
 
       const schedule = await parseSchedule(filename, className);
       return schedule;
@@ -56,10 +62,11 @@ async function getDataFromNetCity({vk, classes, peerId, IS_DEBUG = false}) {
       const Old = previousSchedule.find((Old) => Old.filename === New.filename);
       if (!Old) return;
 
+      if (!Old.schedule || !New.schedule) return;
+
       const oldParsed = Old.schedule.join('\n');
       const newParsed = New.schedule.join('\n');
 
-      if (!oldParsed || !newParsed) return;
       if (oldParsed === newParsed) return;
 
       console.log('SCHEDULE CHANGED', New.filename);
@@ -130,6 +137,7 @@ async function getDataFromNetCity({vk, classes, peerId, IS_DEBUG = false}) {
   } catch (error) {
     console.log('get data from net city error', error);
     await classes.setAlreadyGettingData(peerId, false);
+    return {error: error.message};
   }
 }
 

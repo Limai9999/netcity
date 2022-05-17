@@ -18,11 +18,11 @@ module.exports = async ({url, data, headers, method = 'POST', i}) => {
         const fileStream = fs.createWriteStream('./src/xlsxFiles/' + filename);
         response.body.pipe(fileStream);
 
-        fileStream.on('error', (err) => {
-          console.log(err);
+        fileStream.on('error', (error) => {
+          console.log(error);
           resolve({
             status: false,
-            err,
+            error,
           });
         });
 
@@ -36,11 +36,11 @@ module.exports = async ({url, data, headers, method = 'POST', i}) => {
         fileStream.on('finish', () => {
           fileStream.close();
         });
-      }).catch((err) => {
-        console.log(err);
+      }).catch((error) => {
+        console.log(error);
         resolve({
           status: false,
-          err,
+          error: error.message,
         });
       });
     }, 300 * i);

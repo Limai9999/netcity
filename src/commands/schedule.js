@@ -56,7 +56,7 @@ async function schedule({vk, classes, args = [], peerId, userId, payload, banned
 
     const schedule = await classes.getSchedule(peerId);
 
-    let scheduleNotGot = schedule.length === 0;
+    let scheduleNotGot = schedule.length === 0 || !schedule;
     if (scheduleType === 'updateschedule') scheduleNotGot = true;
 
     let loadingMsgId = null;
@@ -174,10 +174,10 @@ async function schedule({vk, classes, args = [], peerId, userId, payload, banned
       }
 
       if (!scheduleData.status) {
-        const error = scheduleData.err;
-        console.log('choose schedule error:', error);
+        const error = scheduleData.error;
+        console.log(error, scheduleData);
         return vk.sendMessage({
-          message: `Произошла ошибка при получения этого расписания.\nОшибка: ${error}`,
+          message: `Произошла ошибка при получения этого расписания.\nОшибка: ${error.message || error}`,
           peerId,
           priority: 'low',
         });
@@ -203,7 +203,7 @@ async function schedule({vk, classes, args = [], peerId, userId, payload, banned
     }
   } catch (error) {
     vk.sendMessage({
-      message: `Произошла ошибка при выполнении команды.\nОшибка: ${error.message}`,
+      message: `Произошла ошибка при получении расписания.\nОшибка: ${error.message}`,
       peerId,
     });
     console.log('GET SCHEDULE ERROR:', error);
