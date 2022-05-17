@@ -89,7 +89,6 @@ async function getGrades({vk, classes, peerId, payload}) {
         priority: 'low',
       });
     } else if (gradesMode === 'getaveragegrades') {
-      console.log(getTotalGradesOneLesson('Литература'));
       const result = averageGrades.map(({lesson, average}, index) => {
         const totalGrades = getTotalGradesOneLesson(lesson).length;
         const totalGradesMsg = average == 0 ? '' : (lesson.length >= 20 ? '\n' : ' | ') + `Оценок - ${totalGrades}.`;
