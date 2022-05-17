@@ -19,13 +19,13 @@ async function getDataFromNetCity({vk, classes, peerId, IS_DEBUG = false}) {
 
     const previousSchedule = await classes.getSchedule(peerId);
 
-    // Cleaning previous schedule and homework
-    await classes.cleanSchedule(peerId);
-    await classes.cleanHomework(peerId);
     const data = await downloadDataFromNetCity(login, password, distant, test);
 
     // Break if no data
     if (!data) return false;
+    // Cleaning previous schedule and homework
+    await classes.cleanSchedule(peerId);
+    await classes.cleanHomework(peerId);
     // if (!data.schedule.length) return null;
 
     // Parsing schedule
@@ -59,6 +59,7 @@ async function getDataFromNetCity({vk, classes, peerId, IS_DEBUG = false}) {
       const oldParsed = Old.schedule.join('\n');
       const newParsed = New.schedule.join('\n');
 
+      if (!oldParsed || !newParsed) return;
       if (oldParsed === newParsed) return;
 
       console.log('SCHEDULE CHANGED', New.filename);
