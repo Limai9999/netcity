@@ -261,7 +261,7 @@ class VKService extends VK {
       });
     }
 
-    if (!isPolling) return;
+    if (!isPolling || !isCanSendMessages) return;
     // sending a random event
     const randomEventMessage = await randomEvent({
       vk: this,
@@ -273,7 +273,6 @@ class VKService extends VK {
       messagePayload,
     });
 
-    if (!isCanSendMessages) return;
     if (randomEventMessage) {
       console.log(randomEventMessage);
       this.sendMessage({
