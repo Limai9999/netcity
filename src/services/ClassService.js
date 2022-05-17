@@ -35,7 +35,6 @@ class ClassService {
 
   setUserLastSentMessage = async (groupId, messageId) => {
     const classData = await this.getClass(groupId);
-    console.log(messageId, 2);
     await classData.updateOne({
       $set: {lastUserSentMessage: messageId},
     });
@@ -273,18 +272,6 @@ class ClassService {
   getGrades = async (groupId) => {
     const classData = await this.getClass(groupId);
     return classData.gradesData;
-  };
-
-  setAverageGrades = async (grades, groupId) => {
-    const classData = await this.getClass(groupId);
-    await classData.updateOne({
-      $set: {averageGrades: grades},
-    });
-  };
-
-  getAverageGrades = async (groupId) => {
-    const classData = await this.getClass(groupId);
-    return classData.averageGrades;
   };
 }
 

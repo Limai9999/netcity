@@ -59,10 +59,7 @@ const ClassSchema = new Schema({
     default: true,
   },
   gradesData: {
-    type: Array,
-  },
-  averageGrades: {
-    type: Array,
+    type: Object,
   },
 }, {
   timestamps: true,
