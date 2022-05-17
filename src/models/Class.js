@@ -58,6 +58,12 @@ const ClassSchema = new Schema({
     type: Boolean,
     default: true,
   },
+  gradesData: {
+    type: Array,
+  },
+  averageGrades: {
+    type: Array,
+  },
 }, {
   timestamps: true,
 });
