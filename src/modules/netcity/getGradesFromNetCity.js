@@ -176,6 +176,11 @@ async function getGradesFromNetCity({username, password}) {
       };
     });
 
+    if (!reportResult) {
+      logOut();
+      throw new Error('Не удалось сформировать отчет с оценками.');
+    }
+
     console.log('GOT REPORT');
 
     logOut();
