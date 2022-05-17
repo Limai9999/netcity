@@ -92,7 +92,7 @@ async function getGrades({vk, classes, peerId, payload}) {
       console.log(getTotalGradesOneLesson('Литература'));
       const result = averageGrades.map(({lesson, average}, index) => {
         const totalGrades = getTotalGradesOneLesson(lesson).length;
-        const totalGradesMsg = average == 0 ? '' : `\nОценок - ${totalGrades}.`;
+        const totalGradesMsg = average == 0 ? '' : (lesson.length >= 20 ? '\n' : ' | ') + `Оценок - ${totalGrades}.`;
         const lessonStatus = totalGrades < 3 ? '❌' : '✅';
         return `${index + 1}. ${lesson}: ${average}${totalGradesMsg} ${lessonStatus}`;
       }).join('\n\n');
