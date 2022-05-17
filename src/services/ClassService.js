@@ -262,6 +262,30 @@ class ClassService {
     const classData = await this.getClass(groupId);
     return classData.users;
   };
+
+  setGrades = async (grades, groupId) => {
+    const classData = await this.getClass(groupId);
+    await classData.updateOne({
+      $set: {gradesData: grades},
+    });
+  };
+
+  getGrades = async (groupId) => {
+    const classData = await this.getClass(groupId);
+    return classData.gradesData;
+  };
+
+  setAverageGrades = async (grades, groupId) => {
+    const classData = await this.getClass(groupId);
+    await classData.updateOne({
+      $set: {averageGrades: grades},
+    });
+  };
+
+  getAverageGrades = async (groupId) => {
+    const classData = await this.getClass(groupId);
+    return classData.averageGrades;
+  };
 }
 
 module.exports = ClassService;
