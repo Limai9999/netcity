@@ -67,7 +67,7 @@ module.exports = {
   description: 'открыть дополнительное меню',
   requiredArgs: 0,
   usingInfo: 'Использование: допменю',
-  isGroupOnly: true,
+  isGroupOnly: false,
   isInPMOnly: false,
   isAdminOnly: false,
   isHiddenFromList: true,
