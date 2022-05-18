@@ -47,12 +47,18 @@ async function getGrades({vk, classes, peerId, payload}) {
 
     const {info, result: {averageGrades, daysData}} = gradesData;
 
-    // console.log(gradesMode, gradesData);
+    console.log(gradesMode, gradesData);
 
-    const infoMsg = `Информация: ${info.join('\n')}`;
+    const infoMsg = `Информация:\n${info.join('\n')}`;
 
     const previousGrades = await classes.getGrades(peerId);
     await classes.setGrades(gradesData, peerId);
+
+    const changesList = [];
+
+    const lessonsList = averageGrades.map(({lesson}) => {
+      return lesson;
+    });
 
     const getTotalGradesOneLesson = (lessonName) => {
       const grades = [];
@@ -61,6 +67,7 @@ async function getGrades({vk, classes, peerId, payload}) {
         lessonsWithGrades.find(({lesson}) => lesson === lessonName).grades.map((grade) => grades.push(grade));
       });
 
+      // console.log(grades);
       return grades;
     };
 
@@ -105,11 +112,49 @@ async function getGrades({vk, classes, peerId, payload}) {
         keyboard,
       });
     } else if (gradesMode === 'getgradestotal') {
-      await vk.sendMessage({
+      return await vk.sendMessage({
         message: `Эта команда пока что не реализована.`,
         peerId,
         priority: 'medium',
         keyboard,
+      });
+
+      const result = lessonsList.map((lesson, index) => {
+        const totalGrades = getTotalGradesOneLesson(lesson);
+
+        const gradesObj = {};
+
+        totalGrades.map((grade) => {
+          if (gradesObj[grade]) {
+            gradesObj[grade].count++;
+          } else {
+            gradesObj[grade] = {lesson, count: 1};
+          }
+        });
+
+        return gradesObj;
+      });
+
+      const resultArray = result.map((res) => {
+        return Object.keys(res).map((key) => {
+          return {
+            grade: key,
+            count: res[key].count,
+            lesson: res[key].lesson,
+          };
+        });
+      });
+
+      console.log(resultArray);
+    }
+
+    if (previousGrades && changesList.length) {
+      const changesMsg = changesList.map((change, index) => `${index + 1}. ${change}`).join('\n');
+
+      await vk.sendMessage({
+        message: `В оценках произошло ${changesList.length} изменений:\n${changesMsg}`,
+        peerId,
+        priority: 'low',
       });
     }
   } catch (error) {
