@@ -296,7 +296,7 @@ class VKService extends VK {
       });
     }
 
-    if (!isPolling || !isCanSendMessages) return;
+    if (!isPolling || !isCanSendMessages || messagePayload) return;
     // sending a random event
     const randomEventMessage = await randomEvent({
       vk: this,
