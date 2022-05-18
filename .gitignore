@@ -1,3 +1,6 @@
+# grades report pngs
+src/gradeReportScreenshots/*.png
+
 # bot config
 .env
 

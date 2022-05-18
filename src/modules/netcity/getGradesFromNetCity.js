@@ -6,11 +6,15 @@ async function getGradesFromNetCity({username, password}) {
   try {
     const browser = await puppeteer.launch({
       headless: true,
-      defaultViewport: null,
       args: ['--no-sandbox'],
     });
     console.log('browser opened');
     const page = await browser.newPage();
+
+    await page.setViewport({
+      width: 1920,
+      height: 1080,
+    });
 
     const homePageRes = await page.goto('http://62.245.43.79/', {
       waitUntil: 'networkidle0',
@@ -138,7 +142,7 @@ async function getGradesFromNetCity({username, password}) {
         const lessonsArray = Array.from(gradesBody.children);
         lessonsArray.splice(0, 2);
 
-        const averageGrades = {};
+        const averageGrades = [];
 
         lessonsArray.map((lesson) => {
           const grades = Array.from(lesson.children);
@@ -182,6 +186,11 @@ async function getGradesFromNetCity({username, password}) {
       }
     });
 
+    const screenshotName = `./src/gradeReportScreenshots/GradeReport_${username}_${Date.now()}.png`;
+
+    const reportTableElement = await page.$('.table-print');
+    await reportTableElement.screenshot({path: screenshotName});
+
     if (reportResult.error) {
       logOut();
       throw new Error(reportResult.error);
@@ -191,6 +200,7 @@ async function getGradesFromNetCity({username, password}) {
 
     logOut();
 
+    screenshotName.screenshotName = screenshotName;
     return reportResult;
   } catch (error) {
     console.log('grades get', error);
