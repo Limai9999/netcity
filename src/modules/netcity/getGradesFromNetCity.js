@@ -186,10 +186,10 @@ async function getGradesFromNetCity({username, password}) {
       }
     });
 
-    const screenshotName = `./src/gradeReportScreenshots/GradeReport_${username}_${Date.now()}.png`;
+    const screenshotPath = `./src/gradeReportScreenshots/GradeReport_${username}_${Date.now()}.png`;
 
     const reportTableElement = await page.$('.table-print');
-    await reportTableElement.screenshot({path: screenshotName});
+    await reportTableElement.screenshot({path: screenshotPath});
 
     if (reportResult.error) {
       logOut();
@@ -200,7 +200,7 @@ async function getGradesFromNetCity({username, password}) {
 
     logOut();
 
-    reportResult.screenshotName = screenshotName;
+    reportResult.screenshotPath = screenshotPath;
     return reportResult;
   } catch (error) {
     console.log('grades get', error);

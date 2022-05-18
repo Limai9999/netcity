@@ -1,4 +1,4 @@
-const {Keyboard} = require('vk-io');
+const {Keyboard, Attachment} = require('vk-io');
 
 const getGradesFromNetCity = require('../modules/netcity/getGradesFromNetCity');
 
@@ -58,7 +58,7 @@ async function getGrades({vk, classes, peerId, payload}) {
       });
     }
 
-    const {info, result: {averageGrades, daysData}} = gradesData;
+    const {info, result: {averageGrades, daysData}, screenshotPath} = gradesData;
 
     console.log(gradesMode, gradesData);
 
@@ -86,18 +86,26 @@ async function getGrades({vk, classes, peerId, payload}) {
 
     const keyboard = Keyboard.builder()
         .textButton({
+          label: 'Полный отчёт',
+          payload: {
+            button: 'getfullgradesreport',
+          },
+          color: Keyboard.POSITIVE_COLOR,
+        })
+        .row()
+        .textButton({
           label: 'Cредний балл',
           payload: {
             button: 'getaveragegrades',
           },
-          color: Keyboard.POSITIVE_COLOR,
+          color: Keyboard.PRIMARY_COLOR,
         })
         .textButton({
           label: 'Кол-во оценок',
           payload: {
             button: 'getgradestotal',
           },
-          color: Keyboard.POSITIVE_COLOR,
+          color: Keyboard.PRIMARY_COLOR,
         })
         .inline();
 
@@ -106,59 +114,95 @@ async function getGrades({vk, classes, peerId, payload}) {
         message: `${infoMsg}\n\nВыберите действие`,
         peerId,
         keyboard,
-        priority: 'low',
+        priority: 'medium',
       });
     } else if (gradesMode === 'getaveragegrades') {
       const result = averageGrades.map(({lesson, average}, index) => {
         const totalGrades = getTotalGradesOneLesson(lesson).length;
-        const totalGradesMsg = average == 0 ? '' : (lesson.length >= 20 ? '\n' : ' | ') + `Оценок - ${totalGrades}.`;
+        const totalGradesMsg = average == 0 ? '' : (lesson.length >= 20 ? '\n' : ' | ') + `Оценок: ${totalGrades} шт.`;
         const lessonStatus = totalGrades < 3 ? '❌' : '✅';
         return `${index + 1}. ${lesson}: ${average}${totalGradesMsg} ${lessonStatus}`;
       }).join('\n\n');
 
-      const additionalInfo = `Доп. информация:\n✅ - достаточно оценок за четверть\n❌ - недостаточно оценок за четверть`;
+      const additionalInfo = `Доп. информация:\n✅ - достаточно оценок за четверть.\n❌ - недостаточно оценок за четверть.`;
 
       await vk.sendMessage({
-        message: `Средний балл ${averageGrades.length} предметов:\n\n${result}\n\n${additionalInfo}`,
+        message: `Средний балл по ${averageGrades.length} предметам:\n\n${result}\n\n${additionalInfo}`,
         peerId,
-        priority: 'medium',
+        priority: 'high',
         keyboard,
       });
     } else if (gradesMode === 'getgradestotal') {
-      return await vk.sendMessage({
-        message: `Эта команда пока что не реализована.`,
-        peerId,
-        priority: 'medium',
-        keyboard,
-      });
-
-      const result = lessonsList.map((lesson, index) => {
+      const lessonsWithGrades = lessonsList.map((lesson) => {
         const totalGrades = getTotalGradesOneLesson(lesson);
 
-        const gradesObj = {};
-
-        totalGrades.map((grade) => {
-          if (gradesObj[grade]) {
-            gradesObj[grade].count++;
-          } else {
-            gradesObj[grade] = {lesson, count: 1};
-          }
-        });
-
-        return gradesObj;
+        return {
+          lesson,
+          grades: totalGrades,
+        };
       });
 
-      const resultArray = result.map((res) => {
-        return Object.keys(res).map((key) => {
-          return {
-            grade: key,
-            count: res[key].count,
-            lesson: res[key].lesson,
-          };
+      const result = lessonsWithGrades.map(({lesson, grades}) => {
+        const totalGrades = grades.length;
+
+        if (!totalGrades) return {lesson, totalGrades};
+
+        const gradesEach = {};
+        grades.map((grade) => {
+          if (!gradesEach[grade]) gradesEach[grade] = 0;
+          gradesEach[grade]++;
         });
+
+        const gradesEachList = Object.keys(gradesEach);
+
+        // отсоритровка оценок по убыванию
+        gradesEachList.sort((a, b) => b - a);
+
+        const gradesEachResult = gradesEachList.map((grade) => {
+          return `Оценка ${grade}: ${gradesEach[grade]} шт.`;
+        });
+
+        return {
+          lesson,
+          totalGrades,
+          gradesEach: gradesEachResult,
+        };
       });
 
-      console.log(resultArray);
+      const gradesMessage = result.map(({lesson, totalGrades, gradesEach}, index) => {
+        if (!totalGrades) {
+          return `${index + 1}. ${lesson}: нет оценок`;
+        }
+
+        const gradesEachResult = gradesEach.join('\n');
+
+        return `${index + 1}. ${lesson} - ${totalGrades} оценок:\n${gradesEachResult}`;
+      }).join('\n\n');
+
+      const message = `Количество оценок по ${lessonsList.length} предметам:\n\n${gradesMessage}`;
+
+      await vk.sendMessage({
+        message,
+        peerId,
+        priority: 'high',
+        keyboard,
+      });
+    } else if (gradesMode === 'getfullgradesreport') {
+      const [{id, owner_id}] = await vk.uploadAndGetPhoto(screenshotPath, peerId);
+      const attachment = new Attachment({
+        type: 'photo',
+        payload: {
+          id,
+          owner_id,
+        },
+      });
+
+      await vk.sendMessage({
+        message: `Полный отчёт из Сетевой Вселенной:`,
+        peerId,
+        attachment,
+        priority: 'high',
+      });
     }
 
     if (previousGrades && changesList.length) {
@@ -167,7 +211,7 @@ async function getGrades({vk, classes, peerId, payload}) {
       await vk.sendMessage({
         message: `В оценках произошло ${changesList.length} изменений:\n${changesMsg}`,
         peerId,
-        priority: 'low',
+        priority: 'high',
       });
     }
   } catch (error) {
@@ -184,7 +228,7 @@ async function getGrades({vk, classes, peerId, payload}) {
 
 module.exports = {
   name: 'оценки',
-  aliases: ['getgrades', 'getaveragegrades', 'getgradestotal'],
+  aliases: ['getgrades', 'getaveragegrades', 'getgradestotal', 'getfullgradesreport'],
   description: 'получить оценки',
   requiredArgs: 0,
   usingInfo: 'Использование: оценки',

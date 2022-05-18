@@ -1,5 +1,9 @@
-// VK library
+// Libraries
 const {VK, Keyboard} = require('vk-io');
+
+const axios = require('axios').default;
+const fs = require('fs');
+const FormData = require('form-data');
 
 // Utils
 const formMessage = require('../utils/formMessage');
@@ -88,7 +92,7 @@ class VKService extends VK {
 
   callApi = async (method, params) => {
     this.checkIfVKIsConnected();
-    console.log('calling api method:', method, params);
+    console.log('Calling API method:', method);
     const response = await this.api.call(method, params);
 
     if (response.error) {
@@ -154,7 +158,37 @@ class VKService extends VK {
     }));
   };
 
-  sendMessage = async ({message, peerId, keyboard, saveKeyboard = false, priority = 'dontdelete', type = 'bot'}) => {
+  getMessagesUploadServer = async (peer_id) => {
+    // https://vk.com/dev/photos.getMessagesUploadServer
+    const result = await this.callApi('photos.getMessagesUploadServer', {peer_id});
+    return result.upload_url;
+  };
+
+  uploadAndGetPhoto = async (photoPath, peer_id) => {
+    const uploadServer = await this.getMessagesUploadServer(peer_id);
+    const formData = new FormData();
+    formData.append('photo', fs.createReadStream(photoPath));
+
+    const uploadResult = await axios.post(uploadServer, formData, {
+      headers: formData.getHeaders(),
+    });
+
+    const saveResult = this.savePhoto(uploadResult.data);
+    return saveResult;
+  };
+
+  savePhoto = async ({photo, hash, server}) => {
+    // https://vk.com/dev/photos.saveMessagesPhoto
+    const result = await this.callApi('photos.saveMessagesPhoto', {
+      photo,
+      server,
+      hash,
+    });
+
+    return result;
+  };
+
+  sendMessage = async ({message, peerId, keyboard, attachment, saveKeyboard = false, priority = 'dontdelete', type = 'bot'}) => {
     // https://dev.vk.com/method/messages.send
     try {
       if (type === 'bot') {
@@ -185,11 +219,12 @@ class VKService extends VK {
       if (saveKeyboard) this.savedKeyboards[peerId] = keyboard;
       const sendingKeyboard = keyboard ? keyboard : this.savedKeyboards[peerId] || this.getDefaultKeyboard();
 
-      const response = await this.api.call('messages.send', {
+      const response = await this.callApi('messages.send', {
         message,
         peer_ids: peerId,
         keyboard: sendingKeyboard,
         random_id: this.randomId(),
+        attachment,
       });
 
       const messageId = response[0].conversation_message_id;
@@ -232,7 +267,7 @@ class VKService extends VK {
 
       console.log('removing message', messageId, peerId);
 
-      const response = await this.api.call('messages.delete', {
+      const response = await this.callApi('messages.delete', {
         conversation_message_ids: messageId,
         delete_for_all: 1,
         peer_id: peerId,
