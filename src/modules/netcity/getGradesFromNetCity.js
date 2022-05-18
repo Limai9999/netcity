@@ -103,82 +103,88 @@ async function getGradesFromNetCity({username, password}) {
     });
 
     const reportResult = await page.evaluate(() => {
-      const report = document.querySelector('#report').children[0];
-      const infoTable = report.children[4].children[0].children[0].children[1];
-      const infoResult = Array.from(infoTable.children)
-          .filter((e) => e.tagName === 'SPAN')
-          .map((e) => e.innerText);
+      try {
+        const report = document.querySelector('#report').children[0];
+        const infoTable = report.children[4].children[0].children[0].children[1];
+        const infoResult = Array.from(infoTable.children)
+            .filter((e) => e.tagName === 'SPAN')
+            .map((e) => e.innerText);
 
-      const gradesBody = report.children[6].children[0];
-      const daysBody = gradesBody.children[1];
-      const monthArray = Array.from(gradesBody.children[0].children)
-          .filter((e) => e.innerText !== 'Предмет' && e.innerText !== 'Средняя\nоценка')
-          .map((e) => {
-            return {text: e.innerText, totalDays: +e.attributes[0].value};
+        const gradesBody = report.children[6].children[0];
+        const daysBody = gradesBody.children[1];
+        const monthArray = Array.from(gradesBody.children[0].children)
+            .filter((e) => e.innerText !== 'Предмет' && e.innerText !== 'Средняя\nоценка')
+            .map((e) => {
+              return {text: e.innerText, totalDays: +e.attributes[0].value};
+            });
+        const daysArray = Array.from(daysBody.children);
+        const daysData = [];
+
+        let monthIndex = 0;
+        let dayIndex = 0;
+        for (let i = 1; i <= daysArray.length; i++) {
+          if (dayIndex === monthArray[monthIndex].totalDays) {
+            monthIndex++;
+            dayIndex = 0;
+          };
+          daysData.push({
+            month: monthArray[monthIndex].text,
+            day: daysArray[i - 1].innerText,
+            lessonsWithGrades: [],
           });
-      const daysArray = Array.from(daysBody.children);
-      const daysData = [];
-
-      let monthIndex = 0;
-      let dayIndex = 0;
-      for (let i = 1; i <= daysArray.length; i++) {
-        if (dayIndex === monthArray[monthIndex].totalDays) {
-          monthIndex++;
-          dayIndex = 0;
-        };
-        daysData.push({
-          month: monthArray[monthIndex].text,
-          day: daysArray[i - 1].innerText,
-          lessonsWithGrades: [],
-        });
-        dayIndex++;
-      }
-
-      const lessonsArray = Array.from(gradesBody.children);
-      lessonsArray.splice(0, 2);
-
-      const averageGrades = [];
-
-      lessonsArray.map((lesson) => {
-        const grades = Array.from(lesson.children);
-        const average = grades.find((e) => e.className === 'сell-num-2');
-        const gradesFiltered = grades.filter((element) => element.className !== 'cell-text' && element.className !== 'сell-num-2');
-
-        if (!averageGrades.find((e) => e.lesson === average.innerText)) {
-          averageGrades.push({
-            lesson: grades[0].innerText,
-            average: average.innerText,
-          });
+          dayIndex++;
         }
 
-        gradesFiltered.map((e, index) => {
-          const gradesResult = e.innerText
-              .trim()
-              .replace(/\s/g, '')
-              .split('')
-              .filter((e) => {
-                return !isNaN(e);
-              });
+        const lessonsArray = Array.from(gradesBody.children);
+        lessonsArray.splice(0, 2);
 
-          daysData[index].lessonsWithGrades.push({
-            lesson: grades[0].innerText,
-            grades: gradesResult,
+        const averageGrades = {};
+
+        lessonsArray.map((lesson) => {
+          const grades = Array.from(lesson.children);
+          const average = grades.find((e) => e.className === 'сell-num-2');
+          const gradesFiltered = grades.filter((element) => element.className !== 'cell-text' && element.className !== 'сell-num-2');
+
+          if (!averageGrades.find((e) => e.lesson === average.innerText)) {
+            averageGrades.push({
+              lesson: grades[0].innerText,
+              average: average.innerText,
+            });
+          }
+
+          gradesFiltered.map((e, index) => {
+            const gradesResult = e.innerText
+                .trim()
+                .replace(/\s/g, '')
+                .split('')
+                .filter((e) => {
+                  return !isNaN(e);
+                });
+
+            daysData[index].lessonsWithGrades.push({
+              lesson: grades[0].innerText,
+              grades: gradesResult,
+            });
           });
         });
-      });
 
-      return {
-        info: infoResult,
-        result: {
-          daysData,
-          averageGrades,
-        },
-      };
+        return {
+          info: infoResult,
+          result: {
+            daysData,
+            averageGrades,
+          },
+        };
+      } catch (error) {
+        return {
+          error: error.message,
+        };
+      }
     });
 
-    if (!reportResult) {
+    if (reportResult.error) {
       logOut();
-      throw new Error('Не удалось сформировать отчет с оценками.');
+      throw new Error(reportResult.error);
     }
 
     console.log('GOT REPORT');
@@ -189,6 +195,7 @@ async function getGradesFromNetCity({username, password}) {
   } catch (error) {
     console.log('grades get', error);
     logOut();
+    throw new Error(error);
   }
 };
 

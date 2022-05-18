@@ -3,11 +3,20 @@ const {Keyboard} = require('vk-io');
 const getGradesFromNetCity = require('../modules/netcity/getGradesFromNetCity');
 
 async function getGrades({vk, classes, peerId, payload}) {
+  let removeLoadingMessage;
   try {
     const {username, password} = await classes.getNetCityData(peerId);
     if (!username || !password) {
       return vk.sendMessage({
         message: 'Не указаны логин и пароль для подключения к Сетевой Планете.\nУкажите командой "сетевой"',
+        peerId,
+      });
+    }
+
+    const isAlreadyGetting = await classes.isGettingData(peerId);
+    if (isAlreadyGetting) {
+      return vk.sendMessage({
+        message: 'Подождите, получение оценок уже идет...',
         peerId,
       });
     }
@@ -26,16 +35,20 @@ async function getGrades({vk, classes, peerId, payload}) {
       });
     }
 
+    removeLoadingMessage = () => {
+      if (loadingMsgId) {
+        vk.removeMessage({
+          peerId,
+          messageId: loadingMsgId,
+          type: 'bot',
+        });
+      }
+    };
+
     const gradesData = gradesMode === 'getgrades' ? await getGradesFromNetCity({username, password}) : await classes.getGrades(peerId);
     await classes.setAlreadyGettingData(peerId, false);
 
-    if (loadingMsgId) {
-      await vk.removeMessage({
-        messageId: loadingMsgId,
-        peerId,
-        type: 'bot',
-      });
-    }
+    removeLoadingMessage();
 
     if (!gradesData) {
       console.log(gradesData);
@@ -158,11 +171,12 @@ async function getGrades({vk, classes, peerId, payload}) {
       });
     }
   } catch (error) {
+    if (removeLoadingMessage) removeLoadingMessage();
     console.log('VK GET GRADES ERROR:', error);
 
     await classes.setAlreadyGettingData(peerId, false);
     await vk.sendMessage({
-      message: `Не удалось получить оценки\nОшибка: ${error.message}`,
+      message: `Не удалось получить оценки.\n\nОшибка: ${error.message}`,
       peerId,
     });
   }
