@@ -200,7 +200,7 @@ async function getGradesFromNetCity({username, password}) {
 
     logOut();
 
-    screenshotName.screenshotName = screenshotName;
+    reportResult.screenshotName = screenshotName;
     return reportResult;
   } catch (error) {
     console.log('grades get', error);
