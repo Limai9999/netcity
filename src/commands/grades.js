@@ -60,7 +60,7 @@ async function getGrades({vk, classes, peerId, payload}) {
 
     const {info, result: {averageGrades, daysData}, screenshotPath} = gradesData;
 
-    console.log(gradesMode, gradesData);
+    // console.log(gradesMode, gradesData);
 
     const infoMsg = `Информация:\n${info.join('\n')}`;
 
@@ -197,8 +197,20 @@ async function getGrades({vk, classes, peerId, payload}) {
         },
       });
 
+      const netCityNames = [
+        'Сетевой Вселенной',
+        'Сетевого Города',
+        'Сетевичка',
+        'Сетевой Инстанции',
+        'Сетевой Планеты',
+        'Сетевого района',
+        'Сетевой Чечни',
+      ];
+
+      const netCityName = netCityNames[Math.floor(Math.random() * netCityNames.length)];
+
       await vk.sendMessage({
-        message: `Полный отчёт из Сетевой Вселенной:`,
+        message: `Полный отчёт из ${netCityName}:`,
         peerId,
         attachment,
         priority: 'high',
