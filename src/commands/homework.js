@@ -3,8 +3,6 @@ const {Keyboard} = require('vk-io');
 async function homework({vk, classes, peerId}) {
   const isAlreadyGettingData = await classes.isGettingData(peerId);
 
-  const homeworkData = await classes.getHomework(peerId);
-
   if (isAlreadyGettingData) {
     return vk.sendMessage({
       message: 'Подождите, получение данных уже начато.',
@@ -12,6 +10,8 @@ async function homework({vk, classes, peerId}) {
       priority: 'low',
     });
   }
+
+  const homeworkData = await classes.getHomework(peerId);
 
   if (!homeworkData || !homeworkData.length) {
     return vk.sendMessage({
@@ -56,7 +56,7 @@ module.exports = {
   description: 'получить домашнее задание',
   requiredArgs: 0,
   usingInfo: 'Использование: дз',
-  isGroupOnly: true,
+  isGroupOnly: false,
   isInPMOnly: false,
   isAdminOnly: false,
   isHiddenFromList: false,

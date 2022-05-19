@@ -228,7 +228,7 @@ class VKService extends VK {
       });
 
       const messageId = response[0].conversation_message_id;
-      type === 'bot' ? await this.classes.addLastSentMessage(messageId, peerId) : null;
+      if (peerId > 2000000000 && type === 'bot') await this.classes.addLastSentMessage(messageId, peerId);
 
       let removeTimeout = false;
 

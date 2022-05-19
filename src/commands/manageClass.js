@@ -1,6 +1,6 @@
 const startAutoUpdate = require('../modules/startAutoUpdate');
 
-async function manageClass({vk, classes, args, peerId}) {
+async function manageClass({vk, classes, args, peerId, isGroup}) {
   const [className, login, password] = args;
 
   if (className.length > 2) {
@@ -29,7 +29,7 @@ async function manageClass({vk, classes, args, peerId}) {
         priority: 'low',
       });
     }
-    if (password.length < 20) {
+    if (password.length < 20 && isGroup) {
       return vk.sendMessage({
         message: 'Пароль должен быть зашифрованным. Используйте команду "шифр".',
         peerId,
@@ -65,8 +65,8 @@ module.exports = {
   aliases: ['manageclass'],
   description: 'добавить/изменить класс',
   requiredArgs: 1,
-  usingInfo: 'Использование: класс [номер и буква класса] [логин] [пароль] (от Сетевой Страны, необязательно)',
-  isGroupOnly: true,
+  usingInfo: 'Использование: класс [номер и буква класса] [логин] [пароль] от Сетевого Города (необязательно, если уже указаны)',
+  isGroupOnly: false,
   isInPMOnly: false,
   isAdminOnly: false,
   isHiddenFromList: false,

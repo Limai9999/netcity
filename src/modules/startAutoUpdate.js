@@ -14,6 +14,9 @@ async function startAutoUpdate({id, vk, classes, index = null, IS_DEBUG = false}
     index = Classes.length + 1;
   }
 
+  // Settting Already getting data flag
+  await classes.setAlreadyGettingData(id, false);
+
   if (!login || !password || !className) return;
 
   const updateInterval = (20 + index || 0) * 60 * 1000;
@@ -23,7 +26,7 @@ async function startAutoUpdate({id, vk, classes, index = null, IS_DEBUG = false}
   await classes.setIntervalStatus(id, true);
 
   setInterval(() => {
-    getDataFromNetCity({vk, classes, peerId: id, IS_DEBUG});
+    getDataFromNetCity({vk, classes, peerId: id, IS_DEBUG, isGroup: true});
   }, updateInterval);
 }
 

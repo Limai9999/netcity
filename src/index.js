@@ -117,21 +117,20 @@ function startPolling(connection) {
       });
 
       const {name, requiredArgs, usingInfo, isGroupOnly, isInPMOnly, isAdminOnly, isHidden, continuteBanned} = command;
+      const isGroup = peerId > 2000000000;
+      const isPM = peerId < 2000000000;
       if (!isHidden) {
         if (isAdminOnly) {
           if (peerId != ADMIN_CHAT_ID) return false;
         }
-        if (isGroupOnly) {
-          if (peerId < 2000000000) {
-            vk.sendMessage({
-              message: 'Эта команда работает только в беседе.',
-              peerId,
-            });
-            return false;
-          };
+        if (isGroupOnly && !isGroup) {
+          vk.sendMessage({
+            message: 'Эта команда работает только в беседе.',
+            peerId,
+          });
         }
         if (isInPMOnly) {
-          if (peerId > 2000000000) {
+          if (!isPM) {
             vk.sendMessage({
               message: 'Эта команда работает только в личных сообщениях.',
               peerId,
@@ -172,6 +171,8 @@ function startPolling(connection) {
         userId: senderId,
         payload: messagePayload,
         banned: {banned, reason},
+        isGroup,
+        isPM,
       });
     } catch (error) {
       vk.sendMessage({

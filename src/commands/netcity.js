@@ -1,16 +1,15 @@
 async function setNetCity({vk, classes, args, peerId}) {
-  const [username, password] = args;
-  if (username.length < 5 || password.length < 5) {
+  const [login, password] = args;
+  if (login.length < 5 || password.length < 5) {
     return vk.sendMessage({
       message: 'Логин и пароль должны быть не менее 5-ти символов.',
       peerId,
-      priority: 'low',
     });
   }
 
-  await classes.setNetCityData(peerId, {username, password});
+  await classes.setNetCityData(peerId, {login, password});
   return vk.sendMessage({
-    message: `Данные успешно сохранены.\n\nЛогин: ${username}\nПароль: ${password}`,
+    message: `Данные успешно сохранены.\n\nЛогин: ${login}\nПароль: ${password}`,
     peerId,
   });
 };

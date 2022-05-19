@@ -5,15 +5,15 @@ async function getGradesFromNetCity({username, password}) {
   let logOut;
   try {
     const browser = await puppeteer.launch({
-      headless: true,
+      headless: false,
       args: ['--no-sandbox'],
     });
     console.log('browser opened');
     const page = await browser.newPage();
 
     await page.setViewport({
-      width: 1920,
-      height: 1080,
+      width: 2048,
+      height: 1152,
     });
 
     const homePageRes = await page.goto('http://62.245.43.79/', {

@@ -5,13 +5,15 @@ const getGradesFromNetCity = require('../modules/netcity/getGradesFromNetCity');
 async function getGrades({vk, classes, peerId, payload}) {
   let removeLoadingMessage;
   try {
-    const {username, password} = await classes.getNetCityData(peerId);
-    if (!username || !password) {
+    let {username, login, password} = await classes.getNetCityData(peerId);
+    if ((!username && !login) || !password) {
       return vk.sendMessage({
         message: 'Не указаны логин и пароль для подключения к Сетевой Планете.\nУкажите командой "сетевой"',
         peerId,
       });
     }
+
+    if (!username) username = login;
 
     const isAlreadyGetting = await classes.isGettingData(peerId);
     if (isAlreadyGetting) {
@@ -129,7 +131,6 @@ async function getGrades({vk, classes, peerId, payload}) {
       await vk.sendMessage({
         message: `Средний балл по ${averageGrades.length} предметам:\n\n${result}\n\n${additionalInfo}`,
         peerId,
-        priority: 'high',
         keyboard,
       });
     } else if (gradesMode === 'getgradestotal') {
@@ -213,7 +214,6 @@ async function getGrades({vk, classes, peerId, payload}) {
         message: `Полный отчёт из ${netCityName}:`,
         peerId,
         attachment,
-        priority: 'high',
       });
     }
 
@@ -223,7 +223,6 @@ async function getGrades({vk, classes, peerId, payload}) {
       await vk.sendMessage({
         message: `В оценках произошло ${changesList.length} изменений:\n${changesMsg}`,
         peerId,
-        priority: 'high',
       });
     }
   } catch (error) {

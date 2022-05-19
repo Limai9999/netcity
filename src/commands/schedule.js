@@ -4,7 +4,7 @@ moment.locale('ru');
 
 const {Keyboard} = require('vk-io');
 
-async function schedule({vk, classes, args = [], peerId, userId, payload, banned}) {
+async function schedule({vk, classes, args = [], peerId, userId, payload, banned, isGroup}) {
   try {
     if (banned.banned) {
       await vk.removeAllLastSentMessages(peerId);
@@ -34,16 +34,18 @@ async function schedule({vk, classes, args = [], peerId, userId, payload, banned
       return false;
     }
 
-    const {login, password} = await classes.getNetCityData(peerId);
+    let {login, username, password} = await classes.getNetCityData(peerId);
     const className = await classes.getClassName(peerId);
 
-    if (!login || !password) {
+    if ((!login && !username) || !password) {
       return vk.sendMessage({
         message: 'Не указаны логин и пароль.\nИспользуйте команду "класс" для добавления данных.',
         peerId,
         priority: 'low',
       });
     }
+
+    if (!login) login = username;
 
     const isAlreadyGettingData = await classes.isGettingData(peerId);
     if (isAlreadyGettingData) {
@@ -73,7 +75,7 @@ async function schedule({vk, classes, args = [], peerId, userId, payload, banned
 
     const getSchedule = async () => {
       if (scheduleNotGot) {
-        const data = await getDataFromNetCity({vk, classes, peerId, IS_DEBUG: vk.isDebug()});
+        const data = await getDataFromNetCity({vk, classes, peerId, IS_DEBUG: vk.isDebug(), isGroup});
         return data;
       } else {
         return schedule;
@@ -87,6 +89,8 @@ async function schedule({vk, classes, args = [], peerId, userId, payload, banned
 
     if (scheduleType === 'getschedule' || scheduleType === 'updateschedule') {
       const scheduleData = await getSchedule();
+
+      if (scheduleData.error) throw new Error(scheduleData.error);
 
       const totalFiles = scheduleData.length;
       let totalFilesMessage = '';
@@ -216,7 +220,7 @@ module.exports = {
   description: 'получить расписание',
   requiredArgs: 0,
   usingInfo: 'Использование: расписание',
-  isGroupOnly: true,
+  isGroupOnly: false,
   isInPMOnly: false,
   isAdminOnly: false,
   isHiddenFromList: false,

@@ -7,7 +7,7 @@ const passwordManager = require('../passwordManager');
 
 const qs = require('qs');
 
-async function getDataFromNetCity(username, cryptedPassword, isDistant, test) {
+async function getDataFromNetCity(username, cryptedPassword, isDistant, test, isGroup) {
   if (test) {
     return {
       schedule: [
@@ -78,16 +78,22 @@ async function getDataFromNetCity(username, cryptedPassword, isDistant, test) {
 
     await page.focus('input[name="PW"]');
 
-    const password = passwordManager('decrypt', cryptedPassword);
+    let password = passwordManager('decrypt', cryptedPassword);
 
     if (!password) {
-      logOut();
-      throw new Error('Не удалось дешифровать пароль.');
+      if (isGroup) {
+        logOut();
+        throw new Error('Не удалось дешифровать пароль.');
+      }
+      password = cryptedPassword;
     }
 
     if (cryptedPassword.length < 20) {
-      logOut();
-      throw new Error('Пароль не зашифрован командой "шифр".');
+      if (isGroup) {
+        logOut();
+        throw new Error('Пароль не зашифрован командой "шифр".');
+      }
+      password = cryptedPassword;
     }
 
     await page.keyboard.type(password);

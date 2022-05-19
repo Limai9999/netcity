@@ -3,23 +3,25 @@ const parseSchedule = require('../parseSchedule');
 
 const {Keyboard} = require('vk-io');
 
-async function getDataFromNetCity({vk, classes, peerId, IS_DEBUG = false}) {
+async function getDataFromNetCity({vk, classes, peerId, IS_DEBUG = false, isGroup}) {
   try {
-    const {login, password} = await classes.getNetCityData(peerId);
+    let {login, username, password} = await classes.getNetCityData(peerId);
     const className = await classes.getClassName(peerId);
 
     // Error if no login or password
-    if (!login || !password || !className) throw new Error('Не указаны логин, пароль или имя класса.');
+    if ((!login && !username) || !password || !className) throw new Error('Не указаны логин, пароль или имя класса.');
+
+    if (!login) login = username;
 
     const test = IS_DEBUG;
     const distant = false;
 
-    // Settting Already getting data flag
+    // Setting Already getting data flag
     await classes.setAlreadyGettingData(peerId, true);
 
     const previousSchedule = await classes.getSchedule(peerId);
 
-    const data = await downloadDataFromNetCity(login, password, distant, test);
+    const data = await downloadDataFromNetCity(login, password, distant, test, isGroup);
 
     // Break if no data
     if (!data) return false;

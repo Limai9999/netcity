@@ -26,7 +26,7 @@ async function randomEvent({vk, classes, statistics, args, peerId, senderId, mes
   }
 
   // если нет события, пишется рандомное сообщение, которое уже ктото писал
-  trueProbability = 0.2;
+  trueProbability = 0.15;
   playEvent = Math.random() < trueProbability;
   if (!playEvent) return;
   const allMessages = await statistics.getMessagesWithoutPayload(peerId);
