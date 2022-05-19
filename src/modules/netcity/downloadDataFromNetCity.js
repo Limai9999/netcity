@@ -359,7 +359,10 @@ async function getDataFromNetCity(username, cryptedPassword, isDistant, test, is
       homework,
     };
   } catch (error) {
-    throw new Error(`Ошибка при получении файлов расписания из Сетевой Страны.\n\n${error}`);
+    const firstScreen = 'Скриншот 1 - https://vk.cc/cdIw6';
+    const secondScreen = 'Скриншот 2 - https://vk.cc/cdIwge';
+    const thirdScreen = 'Скриншот 3 - https://vk.cc/cdIwuV';
+    throw new Error(`Ошибка при получении файлов расписания из Сетевой Страны.\n\n${error}\n\nЕсли вы только сейчас добавили данные для Сетевого Города, убедитесь что при входе в Сетевую Страну вы сразу попадаете на страницу с домашним заданием и оценками (дневник).\nКак это сделать:\n1.Перейдите в настройки Сетевого. ${firstScreen}\n2.Измените значние рабочего стола на дневник. ${secondScreen}.\n3.Сохраните настройки. ${thirdScreen}`);
   }
 }
 
