@@ -5,7 +5,7 @@ async function getGradesFromNetCity({username, password}) {
   let logOut;
   try {
     const browser = await puppeteer.launch({
-      headless: false,
+      headless: true,
       args: ['--no-sandbox'],
     });
     console.log('browser opened');
