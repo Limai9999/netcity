@@ -9,7 +9,7 @@ async function getDataFromNetCity({vk, classes, peerId, IS_DEBUG = false, isGrou
     const className = await classes.getClassName(peerId);
 
     // Error if no login or password
-    if ((!login && !username) || !password || !className) throw new Error('Не указаны логин, пароль или имя класса.');
+    if ((!login && !username) || !password || !className) throw new Error('Не указаны логин, пароль или имя класса.\nУкажите командой: "класс"');
 
     if (!login) login = username;
 
