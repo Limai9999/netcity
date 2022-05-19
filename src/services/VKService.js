@@ -225,6 +225,7 @@ class VKService extends VK {
         keyboard: sendingKeyboard,
         random_id: this.randomId(),
         attachment,
+        dont_parse_links: 1,
       });
 
       const messageId = response[0].conversation_message_id;
