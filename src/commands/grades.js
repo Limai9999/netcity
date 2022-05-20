@@ -61,7 +61,7 @@ async function getGrades({vk, classes, peerId, payload}) {
 
     const {info, result: {averageGrades, daysData}, screenshotPath} = gradesData;
 
-    console.log(gradesMode, gradesData);
+    // console.log(gradesMode, gradesData);
 
     const infoMsg = `Информация:\n${info.join('\n')}`;
 
@@ -72,7 +72,7 @@ async function getGrades({vk, classes, peerId, payload}) {
     const getTotalGradesOneLesson = (lessonName) => {
       const grades = [];
 
-      console.log(lessonName);
+      // console.log(lessonName);
 
       daysData.map(({lessonsWithGrades}) => {
         lessonsWithGrades.find(({lesson}) => lesson === lessonName).grades.map((grade) => grades.push(grade));

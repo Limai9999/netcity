@@ -11,8 +11,8 @@ async function handleGradesData({vk, classes, login, password, isDebug, shouldUp
   const previousGrades = await classes.getGrades(peerId);
   const changesList = [];
 
-  console.log(previousGrades);
-  console.log(gradesData);
+  // console.log(previousGrades);
+  // console.log(gradesData);
 
   // saving grades after update
   await classes.setGrades(gradesData, peerId);
