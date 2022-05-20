@@ -1,4 +1,4 @@
-const getDataFromNetCity = require('../modules/netcity/getDataFromNetCity');
+const getDataFromNetCity = require('../modules/netcity/getData');
 const moment = require('moment');
 moment.locale('ru');
 

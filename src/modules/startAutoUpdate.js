@@ -1,32 +1,49 @@
-const getDataFromNetCity = require('./netcity/getDataFromNetCity');
+const getDataFromNetCity = require('./netcity/getData');
+const getAndHandleGrades = require('./netcity/getAndHandleGrades');
 
 async function startAutoUpdate({id, vk, classes, index = null, IS_DEBUG = false}) {
-  const isGroup = id > 2000000000;
+  return new Promise(async (resolve) => {
+    const isGroup = id > 2000000000;
 
-  const isIntervalStarted = await classes.getIntervalStatus(id);
-  if (isIntervalStarted) return console.log(`Interval for ${id} already started.`);
+    const isIntervalStarted = await classes.getIntervalStatus(id);
+    if (isIntervalStarted) {
+      console.log(`Interval for ${id} already started.`);
+      return resolve();
+    }
 
-  const {login, password} = await classes.getNetCityData(id);
-  const className = await classes.getClassName(id);
+    const {login, password} = await classes.getNetCityData(id);
+    const className = await classes.getClassName(id);
 
-  if (!index) {
-    const Classes = await classes.getAllClasses(id)
-        .filter(({intervalStatus}) => intervalStatus);
-    console.log(`Started auto update for ${Classes.length} classes.`);
-    index = Classes.length + 1;
-  }
+    if (!index && index !== 0) {
+      const Classes = await classes.getAllClasses(id);
+      const intervalClasses = Classes.filter(({intervalStatus}) => intervalStatus);
+      console.log(`Started auto update for non-indexed class. Total intervaled classes: ${intervalClasses.length}`);
+      index = intervalClasses.length + 1;
+    }
 
-  if (!login || !password || !className) return;
+    if (!login || !password || !className) return resolve();
 
-  const updateInterval = (20 + index || 0) * 60 * 1000;
+    let updateInterval = (20 + index || 0) * 60 * 1000;
+    if (!isGroup) updateInterval = (60 + (index * 2)) * 60 * 1000;
 
-  console.log(`Started auto update for class: ${className} (${id}), with time interval: ${updateInterval}`);
+    await classes.setIntervalStatus(id, true);
 
-  await classes.setIntervalStatus(id, true);
+    console.log(`Started auto update for CLASS: ${className} (${id}), with time interval: ${updateInterval}`);
 
-  setInterval(() => {
-    getDataFromNetCity({vk, classes, peerId: id, IS_DEBUG, isGroup: true});
-  }, updateInterval);
+    setInterval(() => {
+      getDataFromNetCity({vk, classes, peerId: id, IS_DEBUG, isGroup});
+    }, updateInterval);
+
+    if (!isGroup) {
+      const interval = updateInterval + 60 * 1000;
+
+      setInterval(() => {
+        getAndHandleGrades({vk, classes, login, password, peerId: id, isDebug: IS_DEBUG, shouldUpdate: true});
+      }, interval);
+      console.log(`Started GRADES auto update for USER: ${id}, with time interval: ${interval}`);
+    }
+    return resolve();
+  });
 }
 
 module.exports = startAutoUpdate;

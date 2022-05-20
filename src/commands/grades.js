@@ -1,6 +1,9 @@
 const {Keyboard, Attachment} = require('vk-io');
+const moment = require('moment');
 
-const getGradesFromNetCity = require('../modules/netcity/getGradesFromNetCity');
+moment.locale('ru');
+
+const getGradesData = require('../modules/netcity/getAndHandleGrades');
 
 async function getGrades({vk, classes, peerId, payload}) {
   let removeLoadingMessage;
@@ -24,11 +27,9 @@ async function getGrades({vk, classes, peerId, payload}) {
     let gradesMode = 'getgrades';
     if (payload) gradesMode = payload.button;
 
-    await classes.setAlreadyGettingData(peerId, true);
-
     let loadingMsgId = null;
 
-    if (gradesMode === 'getgrades') {
+    if (gradesMode === 'getgrades' || gradesMode === 'updategrades') {
       loadingMsgId = await vk.sendMessage({
         message: 'Загрузка оценок...',
         peerId,
@@ -45,8 +46,8 @@ async function getGrades({vk, classes, peerId, payload}) {
       }
     };
 
-    const gradesData = gradesMode === 'getgrades' ? await getGradesFromNetCity({login, password}) : await classes.getGrades(peerId);
-    await classes.setAlreadyGettingData(peerId, false);
+    const shouldUpdate = gradesMode === 'updategrades';
+    const gradesData = await getGradesData({vk, classes, login, password, isDebug: vk.isDebug(), shouldUpdate, peerId});
 
     removeLoadingMessage();
 
@@ -60,14 +61,9 @@ async function getGrades({vk, classes, peerId, payload}) {
 
     const {info, result: {averageGrades, daysData}, screenshotPath} = gradesData;
 
-    // console.log(gradesMode, gradesData);
+    console.log(gradesMode, gradesData);
 
     const infoMsg = `Информация:\n${info.join('\n')}`;
-
-    const previousGrades = await classes.getGrades(peerId);
-    await classes.setGrades(gradesData, peerId);
-
-    const changesList = [];
 
     const lessonsList = averageGrades.map(({lesson}) => {
       return lesson;
@@ -76,12 +72,34 @@ async function getGrades({vk, classes, peerId, payload}) {
     const getTotalGradesOneLesson = (lessonName) => {
       const grades = [];
 
+      console.log(lessonName);
+
       daysData.map(({lessonsWithGrades}) => {
         lessonsWithGrades.find(({lesson}) => lesson === lessonName).grades.map((grade) => grades.push(grade));
       });
 
       // console.log(grades);
       return grades;
+    };
+
+    const getGradesToday = () => {
+      const {month, day, lessonsWithGrades} = daysData[daysData.length - 1];
+
+      let totalGrades = 0;
+
+      const result = lessonsWithGrades.map(({lesson, grades}) => {
+        if (!grades.length) return;
+
+        grades.forEach(() => totalGrades++);
+
+        return `${lesson}: ${grades.join(', ')}`;
+      }).filter(Boolean);
+
+      return {
+        dateString: `${month} ${day}`,
+        totalGrades,
+        result,
+      };
     };
 
     const keyboard = Keyboard.builder()
@@ -107,11 +125,30 @@ async function getGrades({vk, classes, peerId, payload}) {
           },
           color: Keyboard.PRIMARY_COLOR,
         })
+        .row()
+        .textButton({
+          label: 'За сегодня',
+          payload: {
+            button: 'getgradestoday',
+          },
+          color: Keyboard.PRIMARY_COLOR,
+        })
+        .row()
+        .textButton({
+          label: 'Обновить оценки',
+          payload: {
+            button: 'updategrades',
+          },
+          color: Keyboard.NEGATIVE_COLOR,
+        })
         .inline();
 
-    if (gradesMode === 'getgrades') {
+    if (gradesMode === 'getgrades' || gradesMode === 'updategrades') {
+      const lastUpdate = await classes.getLastGradesUpdate(peerId);
+      const lastUpdateMsg = `Последний раз обновлено: ${moment(lastUpdate).fromNow()}`;
+
       await vk.sendMessage({
-        message: `${infoMsg}\n\nВыберите действие`,
+        message: `${infoMsg}\n\n${lastUpdateMsg}\n\nВыберите действие:`,
         peerId,
         keyboard,
         priority: 'medium',
@@ -187,6 +224,15 @@ async function getGrades({vk, classes, peerId, payload}) {
         keyboard,
       });
     } else if (gradesMode === 'getfullgradesreport') {
+      if (!screenshotPath) {
+        await vk.sendMessage({
+          message: 'Не получилось отправить скриншот. Попробуйте обновить оценки.',
+          peerId,
+        });
+
+        return;
+      }
+
       const [{id, owner_id}] = await vk.uploadAndGetPhoto(screenshotPath, peerId);
       const attachment = new Attachment({
         type: 'photo',
@@ -213,13 +259,17 @@ async function getGrades({vk, classes, peerId, payload}) {
         peerId,
         attachment,
       });
-    }
+    } else if (gradesMode === 'getgradestoday') {
+      const {dateString, totalGrades, result} = getGradesToday();
 
-    if (previousGrades && changesList.length) {
-      const changesMsg = changesList.map((change, index) => `${index + 1}. ${change}`).join('\n');
+      const res = result.map((data, index) => {
+        return `${index + 1}. ${data}`;
+      });
+
+      const message = `За ${dateString} получено ${totalGrades} оценок по ${result.length} предметам:\n\n${res.join('\n\n')}`;
 
       await vk.sendMessage({
-        message: `В оценках произошло ${changesList.length} изменений:\n${changesMsg}`,
+        message,
         peerId,
       });
     }
@@ -237,7 +287,7 @@ async function getGrades({vk, classes, peerId, payload}) {
 
 module.exports = {
   name: 'оценки',
-  aliases: ['getgrades', 'getaveragegrades', 'getgradestotal', 'getfullgradesreport'],
+  aliases: ['getgrades', 'updategrades', 'getaveragegrades', 'getgradestotal', 'getfullgradesreport', 'getgradestoday'],
   description: 'получить оценки',
   requiredArgs: 0,
   usingInfo: 'Использование: оценки',

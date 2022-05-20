@@ -1,4 +1,4 @@
-const downloadDataFromNetCity = require('./downloadDataFromNetCity');
+const downloadDataFromNetCity = require('./downloadData');
 const parseSchedule = require('../parseSchedule');
 
 const {Keyboard} = require('vk-io');

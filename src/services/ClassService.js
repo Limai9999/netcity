@@ -273,6 +273,18 @@ class ClassService {
     const classData = await this.getClass(groupId);
     return classData.gradesData;
   };
+
+  getLastGradesUpdate = async (groupId) => {
+    const classData = await this.getClass(groupId);
+    return classData.lastGradesUpdate;
+  };
+
+  setLastGradesUpdate = async (groupId, date) => {
+    const classData = await this.getClass(groupId);
+    await classData.updateOne({
+      $set: {lastGradesUpdate: date},
+    });
+  };
 }
 
 module.exports = ClassService;

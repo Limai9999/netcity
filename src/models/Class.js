@@ -25,6 +25,10 @@ const ClassSchema = new Schema({
     type: Number,
     default: 0,
   },
+  lastGradesUpdate: {
+    type: Number,
+    default: 0,
+  },
   isGettingData: {
     type: Boolean,
     default: false,

@@ -188,7 +188,7 @@ class VKService extends VK {
     return result;
   };
 
-  sendMessage = async ({message, peerId, keyboard, attachment, saveKeyboard = false, priority = 'dontdelete', type = 'bot'}) => {
+  sendMessage = async ({message, peerId, keyboard, attachment, saveKeyboard = false, useKeyboard = true, priority = 'dontdelete', type = 'bot'}) => {
     // https://dev.vk.com/method/messages.send
     try {
       if (type === 'bot') {
@@ -222,7 +222,7 @@ class VKService extends VK {
       const response = await this.callApi('messages.send', {
         message,
         peer_ids: peerId,
-        keyboard: sendingKeyboard,
+        keyboard: useKeyboard ? sendingKeyboard : null,
         random_id: this.randomId(),
         attachment,
         dont_parse_links: 1,
@@ -315,6 +315,7 @@ class VKService extends VK {
         message: randomEventMessage,
         peerId,
         type: 'user',
+        useKeyboard: false,
       });
     }
   };

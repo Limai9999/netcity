@@ -1,7 +1,15 @@
 /* eslint-disable new-cap */
 const puppeteer = require('puppeteer');
 
-async function getGradesFromNetCity({login, password}) {
+const {readFileSync} = require('fs');
+
+async function getGradesFromNetCity({login, password, isDebug}) {
+  if (isDebug) {
+    console.log('debug grades');
+    const debugData = JSON.parse(readFileSync('./src/modules/netcity/gradesDebugData.json'));
+    return debugData;
+  }
+
   let logOut;
   try {
     const browser = await puppeteer.launch({
@@ -88,6 +96,7 @@ async function getGradesFromNetCity({login, password}) {
     await page.waitForNavigation({
       waitUntil: 'networkidle0',
     });
+    console.log('opened reports');
 
     // выбор Отчет об успеваемости и посещаемости
     page.evaluate(() => {
@@ -96,6 +105,7 @@ async function getGradesFromNetCity({login, password}) {
     await page.waitForNavigation({
       waitUntil: 'networkidle0',
     });
+    console.log('opened report student total, waiting for report generation');
 
     // waiting for report generating
     await page.evaluate(() => {
@@ -105,6 +115,7 @@ async function getGradesFromNetCity({login, password}) {
         });
       });
     });
+    console.log('report generated');
 
     const reportResult = await page.evaluate(() => {
       try {
@@ -185,18 +196,20 @@ async function getGradesFromNetCity({login, password}) {
         };
       }
     });
+    console.log('report parsed');
 
     const screenshotPath = `./src/gradeReportScreenshots/GradeReport_${login}_${Date.now()}.png`;
 
     const reportTableElement = await page.$('.table-print');
     await reportTableElement.screenshot({path: screenshotPath});
+    console.log('screenshot saved');
 
     if (reportResult.error) {
       logOut();
       throw new Error(reportResult.error);
     }
 
-    console.log('GOT REPORT');
+    console.log('GOT GRADES REPORT');
 
     logOut();
 
