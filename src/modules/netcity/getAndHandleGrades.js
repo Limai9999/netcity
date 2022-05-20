@@ -23,7 +23,7 @@ async function handleGradesData({vk, classes, login, password, isDebug, shouldUp
   const newAverageGrades = gradesData.result.averageGrades;
 
   if (oldAverageGrades.length !== newAverageGrades.length) {
-    changesList.push(`Количество предметов в отчете изменилось.\nБыло: ${oldAverageGrades.length}, стало: ${newAverageGrades.length}`);
+    changesList.push(`Количество предметов в отчете изменилось.\nБыло: "${oldAverageGrades.length}", стало: "${newAverageGrades.length}"`);
   }
 
   for (let i = 0; i < oldAverageGrades.length; i++) {
@@ -33,10 +33,13 @@ async function handleGradesData({vk, classes, login, password, isDebug, shouldUp
     if (!newGrade) {
       changesList.push(`Предмет "${oldGrade.lesson}" был удален.`);
       continue;
+    } else if (!oldGrade && newGrade) {
+      changesList.push(`Предмет "${newGrade.lesson}" был добавлен.`);
+      continue;
     }
 
     if (oldGrade.average !== newGrade.average) {
-      changesList.push(`Средний балл предмета "${newGrade.lesson}" изменился.\nБыл: ${oldGrade.average}, стал: ${newGrade.average}`);
+      changesList.push(`Средний балл предмета "${newGrade.lesson}" изменился.\nБыл: "${oldGrade.average}", стал: "${newGrade.average}"`);
     }
   }
 
@@ -44,16 +47,12 @@ async function handleGradesData({vk, classes, login, password, isDebug, shouldUp
   const oldDaysData = previousGrades.result.daysData;
   const newDaysData = gradesData.result.daysData;
 
-  if (oldDaysData.length !== newDaysData.length) {
-    changesList.push(`Количество дней в отчете изменилось.\nБыло: ${oldDaysData.length}, стало: ${newDaysData.length}`);
-  }
-
   for (let i = 0; i < oldDaysData.length; i++) {
     const oldDayData = oldDaysData[i];
     const newDayData = newDaysData.find(({month, day}) => month === oldDayData.month && day === oldDayData.day);
 
     if (!newDayData) {
-      changesList.push(`День ${oldDayData.day} ${newDayData.month} был удален.`);
+      changesList.push(`День "${oldDayData.day} ${oldDayData.month}" был удален.`);
       continue;
     }
 
@@ -72,13 +71,19 @@ async function handleGradesData({vk, classes, login, password, isDebug, shouldUp
       const newGradesString = newLesson.grades.join(', ');
 
       if (oldGradesString !== newGradesString) {
-        changes.push(`Оценки по предмету "${newLesson.lesson}" изменились.\nБыло: ${oldGradesString}, стало: ${newGradesString}`);
+        if (oldGradesString === '') {
+          changes.push(`Выставлены оценки "${newGradesString}" по предмету "${newLesson.lesson}".`);
+        } else if (newGradesString === '') {
+          changes.push(`Убраны оценки по предмету "${newLesson.lesson}".`);
+        } else {
+          changes.push(`Оценки по предмету "${newLesson.lesson}" изменились.\nБыло: "${oldLesson.grades.length ? oldGradesString : '-'}", стало: "${newLesson.grades.length ? newGradesString : '-'}"`);
+        }
       }
     }
 
     if (changes.length) {
       const changesMsg = changes.map((change, index) => `${index + 1}. ${change}`).join('\n');
-      const message = `Изменения на ${newDayData.day} ${newDayData.month}:\n${changesMsg}`;
+      const message = `Изменения на "${newDayData.day} ${newDayData.month}":\n${changesMsg}`;
       changesList.push(message);
     }
   }

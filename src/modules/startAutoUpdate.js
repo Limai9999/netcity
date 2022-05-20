@@ -24,7 +24,7 @@ async function startAutoUpdate({id, vk, classes, index = null, IS_DEBUG = false}
     if (!login || !password || !className) return resolve();
 
     let updateInterval = (20 + index || 0) * 60 * 1000;
-    if (!isGroup) updateInterval = (60 + (index * 2)) * 60 * 1000;
+    if (!isGroup) updateInterval = (120 + (index * 2.2)) * 60 * 1000;
 
     await classes.setIntervalStatus(id, true);
 

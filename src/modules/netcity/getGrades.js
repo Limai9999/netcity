@@ -172,9 +172,8 @@ async function getGradesFromNetCity({login, password, isDebug}) {
                 .trim()
                 .replace(/\s/g, '')
                 .split('')
-                .filter((e) => {
-                  return !isNaN(e);
-                });
+                .filter((e) => !isNaN(e))
+                .sort((a, b) => b - a);
 
             daysData[index].lessonsWithGrades.push({
               lesson: grades[0].innerText,
