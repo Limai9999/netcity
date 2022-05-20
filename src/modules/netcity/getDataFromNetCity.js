@@ -5,13 +5,11 @@ const {Keyboard} = require('vk-io');
 
 async function getDataFromNetCity({vk, classes, peerId, IS_DEBUG = false, isGroup}) {
   try {
-    let {login, username, password} = await classes.getNetCityData(peerId);
+    const {login, password} = await classes.getNetCityData(peerId);
     const className = await classes.getClassName(peerId);
 
     // Error if no login or password
-    if ((!login && !username) || !password || !className) throw new Error('Не указаны логин, пароль или имя класса.\nУкажите командой: "класс"');
-
-    if (!login) login = username;
+    if (!login || !password || !className) throw new Error('Не указаны логин и пароль или имя класса.\nУкажите командой: "класс"');
 
     const test = IS_DEBUG;
     const distant = false;

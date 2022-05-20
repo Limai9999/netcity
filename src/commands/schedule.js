@@ -34,18 +34,16 @@ async function schedule({vk, classes, args = [], peerId, userId, payload, banned
       return false;
     }
 
-    let {login, username, password} = await classes.getNetCityData(peerId);
+    const {login, password} = await classes.getNetCityData(peerId);
     const className = await classes.getClassName(peerId);
 
-    if ((!login && !username) || !password) {
+    if (!login || !password) {
       return vk.sendMessage({
         message: 'Не указаны логин и пароль.\nИспользуйте команду "класс" для добавления данных.',
         peerId,
         priority: 'low',
       });
     }
-
-    if (!login) login = username;
 
     const isAlreadyGettingData = await classes.isGettingData(peerId);
     if (isAlreadyGettingData) {

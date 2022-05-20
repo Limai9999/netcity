@@ -1,7 +1,7 @@
 /* eslint-disable new-cap */
 const puppeteer = require('puppeteer');
 
-async function getGradesFromNetCity({username, password}) {
+async function getGradesFromNetCity({login, password}) {
   let logOut;
   try {
     const browser = await puppeteer.launch({
@@ -44,7 +44,7 @@ async function getGradesFromNetCity({username, password}) {
     await page.select('#schools', '8');
 
     await page.focus('input[name="UN"]');
-    await page.keyboard.type(username);
+    await page.keyboard.type(login);
 
     await page.focus('input[name="PW"]');
 
@@ -186,7 +186,7 @@ async function getGradesFromNetCity({username, password}) {
       }
     });
 
-    const screenshotPath = `./src/gradeReportScreenshots/GradeReport_${username}_${Date.now()}.png`;
+    const screenshotPath = `./src/gradeReportScreenshots/GradeReport_${login}_${Date.now()}.png`;
 
     const reportTableElement = await page.$('.table-print');
     await reportTableElement.screenshot({path: screenshotPath});

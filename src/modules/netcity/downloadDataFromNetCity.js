@@ -7,7 +7,7 @@ const passwordManager = require('../passwordManager');
 
 const qs = require('qs');
 
-async function getDataFromNetCity(username, cryptedPassword, isDistant, test, isGroup) {
+async function getDataFromNetCity(login, cryptedPassword, isDistant, test, isGroup) {
   if (test) {
     return {
       schedule: [
@@ -74,7 +74,7 @@ async function getDataFromNetCity(username, cryptedPassword, isDistant, test, is
     await page.select('#schools', '8');
 
     await page.focus('input[name="UN"]');
-    await page.keyboard.type(username);
+    await page.keyboard.type(login);
 
     await page.focus('input[name="PW"]');
 

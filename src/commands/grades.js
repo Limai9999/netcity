@@ -5,15 +5,13 @@ const getGradesFromNetCity = require('../modules/netcity/getGradesFromNetCity');
 async function getGrades({vk, classes, peerId, payload}) {
   let removeLoadingMessage;
   try {
-    let {username, login, password} = await classes.getNetCityData(peerId);
-    if ((!username && !login) || !password) {
+    const {login, password} = await classes.getNetCityData(peerId);
+    if (!login || !password) {
       return vk.sendMessage({
         message: 'Не указаны логин и пароль для подключения к Сетевой Планете.\nУкажите командой "сетевой"',
         peerId,
       });
     }
-
-    if (!username) username = login;
 
     const isAlreadyGetting = await classes.isGettingData(peerId);
     if (isAlreadyGetting) {
@@ -47,7 +45,7 @@ async function getGrades({vk, classes, peerId, payload}) {
       }
     };
 
-    const gradesData = gradesMode === 'getgrades' ? await getGradesFromNetCity({username, password}) : await classes.getGrades(peerId);
+    const gradesData = gradesMode === 'getgrades' ? await getGradesFromNetCity({login, password}) : await classes.getGrades(peerId);
     await classes.setAlreadyGettingData(peerId, false);
 
     removeLoadingMessage();
