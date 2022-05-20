@@ -1,7 +1,7 @@
 const getDataFromNetCity = require('./netcity/getDataFromNetCity');
 
 async function startAutoUpdate({id, vk, classes, index = null, IS_DEBUG = false}) {
-  if (id < 2000000000) return;
+  const isGroup = id > 2000000000;
 
   const isIntervalStarted = await classes.getIntervalStatus(id);
   if (isIntervalStarted) return console.log(`Interval for ${id} already started.`);
@@ -10,12 +10,11 @@ async function startAutoUpdate({id, vk, classes, index = null, IS_DEBUG = false}
   const className = await classes.getClassName(id);
 
   if (!index) {
-    const Classes = await classes.getAllClasses(id);
+    const Classes = await classes.getAllClasses(id)
+        .filter(({intervalStatus}) => intervalStatus);
+    console.log(`Started auto update for ${Classes.length} classes.`);
     index = Classes.length + 1;
   }
-
-  // Settting Already getting data flag
-  await classes.setAlreadyGettingData(id, false);
 
   if (!login || !password || !className) return;
 
