@@ -21,21 +21,21 @@ async function startAutoUpdate({id, vk, classes, index = null, IS_DEBUG = false}
       index = intervalClasses.length + 1;
     }
 
-    if (!login || !password || !className) return resolve();
+    if (!login || !password) return resolve();
 
     let updateInterval = (20 + index || 0) * 60 * 1000;
-    if (!isGroup) updateInterval = (120 + (index * 2.2)) * 60 * 1000;
+    if (!isGroup) updateInterval = (120 + (index * 3)) * 60 * 1000;
 
-    await classes.setIntervalStatus(id, true);
-
-    console.log(`Started auto update for CLASS: ${className} (${id}), with time interval: ${updateInterval}`);
-
-    setInterval(() => {
-      getDataFromNetCity({vk, classes, peerId: id, IS_DEBUG, isGroup});
-    }, updateInterval);
+    if (className) {
+      await classes.setIntervalStatus(id, true);
+      setInterval(() => {
+        getDataFromNetCity({vk, classes, peerId: id, IS_DEBUG, isGroup});
+      }, updateInterval);
+      console.log(`Started auto update for CLASS: ${className} (${id}), with time interval: ${updateInterval}`);
+    }
 
     if (!isGroup) {
-      const interval = updateInterval + 60 * 1000;
+      const interval = updateInterval + 120 * 1000;
 
       setInterval(() => {
         getAndHandleGrades({vk, classes, login, password, peerId: id, isDebug: IS_DEBUG, shouldUpdate: true});
