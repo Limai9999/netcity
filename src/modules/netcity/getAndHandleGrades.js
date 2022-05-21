@@ -74,7 +74,7 @@ async function handleGradesData({vk, classes, login, password, isDebug, shouldUp
         if (oldGradesString === '') {
           changes.push(`Выставлены оценки "${newGradesString}" по предмету "${newLesson.lesson}".`);
         } else if (newGradesString === '') {
-          changes.push(`Убраны оценки по предмету "${newLesson.lesson}".`);
+          changes.push(`Убраны оценки "${oldGradesString}" по предмету "${newLesson.lesson}".`);
         } else {
           changes.push(`Оценки по предмету "${newLesson.lesson}" изменились.\nБыло: "${oldLesson.grades.length ? oldGradesString : '-'}", стало: "${newLesson.grades.length ? newGradesString : '-'}"`);
         }
