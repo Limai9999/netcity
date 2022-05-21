@@ -14,14 +14,14 @@ async function startAutoUpdate({id, vk, classes, index = null, IS_DEBUG = false}
     const {login, password} = await classes.getNetCityData(id);
     const className = await classes.getClassName(id);
 
+    if (!login || !password) return resolve();
+
     if (!index && index !== 0) {
       const Classes = await classes.getAllClasses(id);
       const intervalClasses = Classes.filter(({intervalStatus}) => intervalStatus);
       console.log(`Started auto update for non-indexed class. Total intervaled classes: ${intervalClasses.length}`);
       index = intervalClasses.length + 1;
     }
-
-    if (!login || !password) return resolve();
 
     let updateInterval = (20 + index || 0) * 60 * 1000;
     if (!isGroup) updateInterval = (120 + (index * 3)) * 60 * 1000;
