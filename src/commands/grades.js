@@ -51,7 +51,7 @@ async function getGrades({vk, classes, peerId, payload}) {
 
     removeLoadingMessage();
 
-    if (!gradesData) {
+    if (!gradesData || gradesData.error) {
       console.log(gradesData);
       return vk.sendMessage({
         message: `Не удалось получить оценки\nОшибка: ${gradesData.error || 'неизвестно'}`,

@@ -155,7 +155,7 @@ function startPolling(connection) {
 
       if (args.length < requiredArgs) {
         vk.sendMessage({
-          message: `Недостаточно аргументов.\n${usingInfo}`,
+          message: `Недостаточно параметров.\n${usingInfo}`,
           peerId,
           priority: 'low',
         });
