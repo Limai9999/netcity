@@ -26,7 +26,7 @@ async function startAutoUpdate({id, vk, classes, index = null, IS_DEBUG = false}
     let updateInterval = (20 + index || 0) * 60 * 1000;
     if (!isGroup) updateInterval = (120 + (index * 3)) * 60 * 1000;
 
-    if (className) {
+    if (className && isGroup) {
       await classes.setIntervalStatus(id, true);
       setInterval(() => {
         getDataFromNetCity({vk, classes, peerId: id, IS_DEBUG, isGroup});
@@ -35,12 +35,13 @@ async function startAutoUpdate({id, vk, classes, index = null, IS_DEBUG = false}
     }
 
     if (!isGroup) {
-      const interval = updateInterval + 120 * 1000;
+      // const interval = updateInterval + 120 * 1000;
+      await classes.setIntervalStatus(id, true);
 
       setInterval(() => {
         getAndHandleGrades({vk, classes, login, password, peerId: id, isDebug: IS_DEBUG, shouldUpdate: true});
-      }, interval);
-      console.log(`Started GRADES auto update for USER: ${id}, with time interval: ${interval}`);
+      }, updateInterval);
+      console.log(`Started GRADES auto update for USER: ${id}, with time interval: ${updateInterval}`);
     }
     return resolve();
   });

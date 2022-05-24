@@ -14,11 +14,11 @@ async function getGradesFromNetCity({login, password, isDebug}) {
   let logOut;
 
   const timeout = setTimeout(() => {
-    if (logOut) logOut();
+    if (logOut) logOut(false);
     if (browser) browser.close();
     console.log('grades timeout');
     throw new Error('Не удалось получить данные.');
-  }, 120000);
+  }, 150000);
 
   try {
     browser = await puppeteer.launch({
@@ -39,7 +39,7 @@ async function getGradesFromNetCity({login, password, isDebug}) {
 
     const status = homePageRes.status();
 
-    logOut = async () => {
+    logOut = async (shouldCloseBrowser = true) => {
       await page.evaluate(async () => {
         // eslint-disable-next-line new-cap
         await Logout();
@@ -47,7 +47,7 @@ async function getGradesFromNetCity({login, password, isDebug}) {
 
       await page.waitForNetworkIdle({idleTime: 2000, timeout: 10000});
 
-      await browser.close();
+      if (shouldCloseBrowser) await browser.close();
       console.log('browser closed');
     };
 
@@ -229,7 +229,7 @@ async function getGradesFromNetCity({login, password, isDebug}) {
   } catch (error) {
     clearTimeout(timeout);
     console.log('grades get error', error);
-    if (logOut) logOut();
+    if (logOut) logOut(false);
     if (browser) browser.close();
     throw new Error(error);
   }
