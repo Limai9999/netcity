@@ -10,9 +10,18 @@ async function getGradesFromNetCity({login, password, isDebug}) {
     return debugData;
   }
 
+  let browser;
   let logOut;
+
+  const timeout = setTimeout(() => {
+    if (logOut) logOut();
+    if (browser) browser.close();
+    console.log('grades timeout');
+    throw new Error('Не удалось получить данные.');
+  }, 120000);
+
   try {
-    const browser = await puppeteer.launch({
+    browser = await puppeteer.launch({
       headless: true,
       args: ['--no-sandbox'],
     });
@@ -213,10 +222,15 @@ async function getGradesFromNetCity({login, password, isDebug}) {
     logOut();
 
     reportResult.screenshotPath = screenshotPath;
+
+    clearTimeout(timeout);
+
     return reportResult;
   } catch (error) {
-    console.log('grades get', error);
-    logOut();
+    clearTimeout(timeout);
+    console.log('grades get error', error);
+    if (logOut) logOut();
+    if (browser) browser.close();
     throw new Error(error);
   }
 };

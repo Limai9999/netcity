@@ -131,7 +131,6 @@ async function getDataFromNetCity(login, cryptedPassword, isDistant, test, isGro
 
     // distant
     let addResults;
-
     if (isDistant) {
       await page.evaluate(async () => {
         // eslint-disable-next-line new-cap
@@ -210,7 +209,6 @@ async function getDataFromNetCity(login, cryptedPassword, isDistant, test, isGro
 
       addResults = results;
     }
-
     // dist end
 
     let homework = [];
