@@ -15,7 +15,11 @@ async function getGradesFromNetCity({login, password, isDebug}) {
 
   const timeout = setTimeout(() => {
     if (logOut) logOut(false);
-    if (browser) browser.close();
+
+    setTimeout(() => {
+      if (browser) browser.close();
+    }, 15000);
+
     console.log('grades timeout');
     throw new Error('Не удалось получить данные.');
   }, 150000);
@@ -230,7 +234,9 @@ async function getGradesFromNetCity({login, password, isDebug}) {
     clearTimeout(timeout);
     console.log('grades get error', error);
     if (logOut) logOut(false);
-    if (browser) browser.close();
+    setTimeout(() => {
+      if (browser) browser.close();
+    }, 15000);
     throw new Error(error);
   }
 };
