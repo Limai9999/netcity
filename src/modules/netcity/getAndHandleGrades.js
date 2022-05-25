@@ -18,7 +18,7 @@ async function handleGradesData({vk, classes, login, password, isDebug, shouldUp
     // console.log(gradesData);
 
     // saving grades after update
-    await classes.setGrades(gradesData, peerId);
+    if (gradesData) await classes.setGrades(gradesData, peerId);
 
     // checking for changes
     // checking average grades
