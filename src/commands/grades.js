@@ -46,7 +46,8 @@ async function getGrades({vk, classes, peerId, payload}) {
       }
     };
 
-    const shouldUpdate = gradesMode === 'updategrades';
+    let shouldUpdate = gradesMode === 'updategrades';
+    await classes.getGrades(peerId) ? shouldUpdate = false : true;
     const gradesData = await getGradesData({vk, classes, login, password, isDebug: vk.isDebug(), shouldUpdate, peerId});
 
     removeLoadingMessage();
