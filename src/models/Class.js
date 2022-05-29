@@ -9,6 +9,9 @@ const ClassSchema = new Schema({
   className: {
     type: String,
   },
+  mainNote: {
+    type: String,
+  },
   homework: {
     type: Array,
   },
