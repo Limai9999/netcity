@@ -219,14 +219,18 @@ class VKService extends VK {
       if (saveKeyboard) this.savedKeyboards[peerId] = keyboard;
       const sendingKeyboard = keyboard ? keyboard : this.savedKeyboards[peerId] || this.getDefaultKeyboard();
 
-      const response = await this.callApi('messages.send', {
+      const data = {
         message,
         peer_ids: peerId,
         keyboard: useKeyboard ? sendingKeyboard : null,
         random_id: this.randomId(),
         attachment,
         dont_parse_links: 1,
-      });
+      };
+
+      if (!data.keyboard) delete data.keyboard;
+
+      const response = await this.callApi('messages.send', data);
 
       const messageId = response[0].conversation_message_id;
       if (peerId > 2000000000 && type === 'bot') await this.classes.addLastSentMessage(messageId, peerId);
@@ -245,7 +249,7 @@ class VKService extends VK {
           break;
       }
 
-      if (removeTimeout) this.removeMessageTimeout({messageId, peerId, time: removeTimeout});
+      if (removeTimeout && peerId > 2000000000) this.removeMessageTimeout({messageId, peerId, time: removeTimeout});
 
       return messageId;
     } catch (error) {
@@ -310,7 +314,6 @@ class VKService extends VK {
     });
 
     if (randomEventMessage) {
-      console.log(randomEventMessage);
       this.sendMessage({
         message: randomEventMessage,
         peerId,

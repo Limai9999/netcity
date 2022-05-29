@@ -49,7 +49,7 @@ async function randomEvent({vk, classes, statistics, args, peerId, senderId, mes
 
   const message = randomElements.join(' ');
 
-  console.log(message);
+  console.log('Random event message:', message);
 
   return message;
 }
