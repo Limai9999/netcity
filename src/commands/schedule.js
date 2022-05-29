@@ -187,7 +187,11 @@ async function schedule({vk, classes, args = [], peerId, userId, payload, banned
 
       const {date, distant, schedule, startTime, totalLessons} = scheduleData;
 
-      const scheduleInfo = isOldSchedule ? `Старое расписание на ${date} для ${className}.` : `Расписание на ${date} для ${className}.`;
+      let scheduleInfo = isOldSchedule ? `Старое расписание на ${date} для ${className}.` : `Расписание на ${date} для ${className}.`;
+
+      const note = scheduleData.note || false;
+      if (note) scheduleInfo += `\n\n❗ Заметка: ${note}`;
+
       const isDistant = distant ? '(дистант)' : false;
       const additionalInfo = [
         `Всего уроков: ${totalLessons}`,

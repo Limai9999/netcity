@@ -137,6 +137,7 @@ async function parse(filename, className) {
       totalLessons,
       date,
       filename,
+      note: null,
       room,
     };
 

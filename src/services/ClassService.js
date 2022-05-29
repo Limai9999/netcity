@@ -151,6 +151,13 @@ class ClassService {
     });
   };
 
+  setSchedule = async (schedule, groupId) => {
+    const classData = await this.getClass(groupId);
+    await classData.updateOne({
+      $set: {schedule: schedule},
+    });
+  };
+
   getOldSchedule = async (groupId) => {
     const classData = await this.getClass(groupId);
     return Array.from(classData.oldSchedule);
