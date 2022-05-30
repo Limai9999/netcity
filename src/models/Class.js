@@ -12,6 +12,9 @@ const ClassSchema = new Schema({
   mainNote: {
     type: String,
   },
+  scheduleNotes: {
+    type: Object,
+  },
   homework: {
     type: Array,
   },

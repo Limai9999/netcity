@@ -292,6 +292,30 @@ class ClassService {
       $set: {lastGradesUpdate: date},
     });
   };
+
+  setMainNote = async (note, groupId) => {
+    const classData = await this.getClass(groupId);
+    await classData.updateOne({
+      $set: {mainNote: note},
+    });
+  };
+
+  getMainNote = async (groupId) => {
+    const classData = await this.getClass(groupId);
+    return classData.mainNote;
+  };
+
+  getScheduleNotes = async (groupId) => {
+    const classData = await this.getClass(groupId);
+    return classData.scheduleNotes || {};
+  };
+
+  setScheduleNotes = async (notes, groupId) => {
+    const classData = await this.getClass(groupId);
+    await classData.updateOne({
+      $set: {scheduleNotes: notes},
+    });
+  };
 }
 
 module.exports = ClassService;

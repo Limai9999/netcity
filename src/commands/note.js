@@ -1,6 +1,25 @@
 async function note({vk, classes, args, peerId}) {
   const scheduleQuery = args[0];
-  const noteText = args.slice(1).join(' ');
+  let noteText = args.slice(1).join(' ');
+
+  if (args[0] === 'главная') {
+    let isDelete = false;
+
+    console.log(noteText);
+
+    if (!noteText || noteText.length <= 0) {
+      noteText = null;
+      isDelete = true;
+    }
+
+    await classes.setMainNote(noteText, peerId);
+
+    return vk.sendMessage({
+      message: `Главная заметка успешно ${isDelete ? 'удалена' : 'обновлена'}.`,
+      peerId,
+      priority: 'low',
+    });
+  }
 
   const isGettingData = await classes.isGettingData(peerId);
 
@@ -15,6 +34,8 @@ async function note({vk, classes, args, peerId}) {
   const schedules = await classes.getSchedule(peerId);
   const schedule = schedules.find((schedule) => schedule.date === scheduleQuery) || schedules[parseInt(scheduleQuery) - 1];
 
+  const notes = await classes.getScheduleNotes(peerId);
+
   if (!schedule) {
     return vk.sendMessage({
       message: 'Не удалось найти расписание.',
@@ -23,15 +44,15 @@ async function note({vk, classes, args, peerId}) {
     });
   }
 
-  if ((!noteText || noteText.length <= 0) && !schedule.note) {
+  if ((!noteText || noteText.length <= 0) && !notes[schedule.date]) {
     return vk.sendMessage({
       message: 'Невозможно удалить заметку, т.к она еще не была оставлена.',
       peerId,
       priority: 'low',
     });
   } else if (!noteText || noteText.length <= 0) {
-    schedule.note = null;
-    await classes.setSchedule(schedules, peerId);
+    notes[schedule.date] = null;
+    await classes.setScheduleNotes(notes, peerId);
 
     return vk.sendMessage({
       message: `Заметка в расписании на ${schedule.date} успешно удалена.`,
@@ -40,18 +61,9 @@ async function note({vk, classes, args, peerId}) {
     });
   }
 
-  if (noteText.length <= 5) {
-    return vk.sendMessage({
-      message: 'Текст заметки должен быть больше 5-ти символов.',
-      peerId,
-      priority: 'low',
-    });
-  }
-
-  const noteWasAdded = schedule.note ? true : false;
-  schedule.note = noteText;
-
-  await classes.setSchedule(schedules, peerId);
+  const noteWasAdded = notes[schedule.date] ? true : false;
+  notes[schedule.date] = noteText;
+  await classes.setScheduleNotes(notes, peerId);
 
   return vk.sendMessage({
     message: `Заметка в расписании на ${schedule.date} успешно ${noteWasAdded ? 'изменена' : 'оставлена'}.`,
@@ -65,7 +77,7 @@ module.exports = {
   aliases: ['note'],
   description: 'оставить заметку в расписании',
   requiredArgs: 1,
-  usingInfo: 'Использование: заметка [номер или дата расписания] [текст заметки]. (Чтобы удалить заметку, не указывайте её текст)',
+  usingInfo: 'Использование: заметка [номер или дата расписания | главная] [текст заметки]. (Чтобы удалить заметку, не указывайте её текст)',
   isGroupOnly: true,
   isInPMOnly: false,
   isAdminOnly: false,

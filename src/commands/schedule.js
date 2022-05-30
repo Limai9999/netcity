@@ -99,8 +99,13 @@ async function schedule({vk, classes, args = [], peerId, userId, payload, banned
         if (totalFiles > 1 && totalFiles < 5) totalFilesMessage = `Найдено ${totalFiles} файла`;
       }
 
+      const mainNote = await classes.getMainNote(peerId);
+
       let noticeIfNoScheduleForToday = true;
-      let today = `Сегодня ${todayDates[0]}`;
+      let additionalInfo = '';
+
+      if (mainNote) additionalInfo += `📝 Глобальная заметка: ${mainNote}`;
+      additionalInfo += `\nСегодня ${todayDates[0]}`;
 
       let keyboard = Keyboard.builder().inline();
 
@@ -121,12 +126,12 @@ async function schedule({vk, classes, args = [], peerId, userId, payload, banned
         return `${index + 1} - ${filename} ${isToday ? '✅' : ''}${status ? '' : '⚠️'}`;
       }).join('\n');
 
-      noticeIfNoScheduleForToday ? today += ' - На сегодня расписания нет.' : null;
+      noticeIfNoScheduleForToday ? additionalInfo += ' - На сегодня расписания нет.' : null;
 
       let lastUpdate = await classes.getLastDataUpdate(peerId);
       lastUpdate = `Последний раз обновлено: ${moment(lastUpdate).fromNow()}`;
 
-      const scheduleMessage = `${totalFilesMessage} с расписанием для ${className}.\n\n${today}\n\n${scheduleFilenames}\n\n${lastUpdate}`;
+      const scheduleMessage = `${totalFilesMessage} с расписанием для ${className}.\n\n${additionalInfo}\n\n${scheduleFilenames}\n\n${lastUpdate}`;
 
       keyboard = keyboard
           .row()
@@ -189,7 +194,9 @@ async function schedule({vk, classes, args = [], peerId, userId, payload, banned
 
       let scheduleInfo = isOldSchedule ? `Старое расписание на ${date} для ${className}.` : `Расписание на ${date} для ${className}.`;
 
-      const note = scheduleData.note || false;
+      const notes = await classes.getScheduleNotes(peerId);
+
+      const note = notes[date] || false;
       if (note) scheduleInfo += `\n\n❗ Заметка: ${note}`;
 
       const isDistant = distant ? '(дистант)' : false;
