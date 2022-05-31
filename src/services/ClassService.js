@@ -316,6 +316,18 @@ class ClassService {
       $set: {scheduleNotes: notes},
     });
   };
+
+  setLastScheduleUpdateStatus = async (groupId, value) => {
+    const classData = await this.getClass(groupId);
+    await classData.updateOne({
+      $set: {lastScheduleUpdateStatus: value},
+    });
+  };
+
+  getLastScheduleUpdateStatus = async (groupId) => {
+    const classData = await this.getClass(groupId);
+    return classData.lastScheduleUpdateStatus;
+  };
 }
 
 module.exports = ClassService;

@@ -22,7 +22,12 @@ async function getDataFromNetCity({vk, classes, peerId, IS_DEBUG = false, isGrou
     const data = await downloadDataFromNetCity(login, password, distant, test, isGroup);
 
     // Break if no data
-    if (!data) return false;
+    if (!data) {
+      return classes.setLastScheduleUpdateStatus(peerId, false);
+    };
+
+    await classes.setAlreadyGettingData(peerId, true);
+
     // Cleaning previous schedule and homework
     await classes.cleanSchedule(peerId);
     await classes.cleanHomework(peerId);
@@ -137,6 +142,7 @@ async function getDataFromNetCity({vk, classes, peerId, IS_DEBUG = false, isGrou
   } catch (error) {
     console.log('get data from net city error', error);
     await classes.setAlreadyGettingData(peerId, false);
+    await classes.setLastScheduleUpdateStatus(peerId, false);
     return {error: error.message};
   }
 }

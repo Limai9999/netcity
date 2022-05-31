@@ -6,6 +6,11 @@ moment.locale('ru');
 const getGradesData = require('../modules/netcity/getAndHandleGrades');
 
 async function getGrades({vk, classes, peerId, payload}) {
+  return vk.sendMessage({
+    message: 'Сетевой неофицально удалён. ушла эпоха',
+    peerId,
+  });
+
   let removeLoadingMessage;
   try {
     const {login, password} = await classes.getNetCityData(peerId);

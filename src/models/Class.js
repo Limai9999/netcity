@@ -28,6 +28,10 @@ const ClassSchema = new Schema({
     type: Number,
     default: 0,
   },
+  lastScheduleUpdateStatus: {
+    type: Boolean,
+    default: true,
+  },
   lastGradesUpdate: {
     type: Number,
     default: 0,

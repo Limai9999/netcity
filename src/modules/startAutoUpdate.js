@@ -2,6 +2,8 @@ const getDataFromNetCity = require('./netcity/getData');
 const getAndHandleGrades = require('./netcity/getAndHandleGrades');
 
 async function startAutoUpdate({id, vk, classes, index = null, IS_DEBUG = false}) {
+  return false;
+
   return new Promise(async (resolve) => {
     const isGroup = id > 2000000000;
 
