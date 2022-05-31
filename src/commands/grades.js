@@ -7,7 +7,7 @@ const getGradesData = require('../modules/netcity/getAndHandleGrades');
 
 async function getGrades({vk, classes, peerId, payload}) {
   return vk.sendMessage({
-    message: 'Сетевой неофицально удалён. ушла эпоха',
+    message: 'Сетевой неофицально удалён.',
     peerId,
   });
 
