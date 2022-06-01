@@ -14,7 +14,7 @@ async function randomEvent({vk, classes, statistics, args, peerId, senderId, mes
 
   // рандомнное событие из папки MessageEvents
   if (recursedTimes > 3) return false;
-  let trueProbability = 0.03;
+  let trueProbability = 0.1;
   let playEvent = Math.random() < trueProbability;
   // console.log('playEvent', playEvent);
   if (playEvent) {
