@@ -47,5 +47,6 @@ module.exports = {
   isHiddenFromList: false,
   continuteBanned: false,
   showInAdditionalMenu: false,
+  cannotUseWhileSummer: false,
   execute: unban,
 };

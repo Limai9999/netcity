@@ -61,5 +61,6 @@ module.exports = {
   isAdminOnly: false,
   isHiddenFromList: false,
   continuteBanned: false,
+  cannotUseWhileSummer: true,
   execute: homework,
 };

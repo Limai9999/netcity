@@ -72,5 +72,6 @@ module.exports = {
   isHiddenFromList: false,
   continuteBanned: false,
   showInAdditionalMenu: false,
+  cannotUseWhileSummer: true,
   execute: manageClass,
 };

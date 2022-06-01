@@ -3,7 +3,9 @@ require('dotenv').config();
 
 const {connect} = require('mongoose');
 const fs = require('fs');
+
 const startAutoUpdate = require('./modules/startAutoUpdate');
+const getSummerInfo = require('./modules/getSummerInfo');
 
 const VKService = require('./services/VKService');
 const ClassService = require('./services/ClassService');
@@ -107,6 +109,8 @@ function startPolling(connection) {
       });
     }
 
+    const {isNowSummer, timeToSummer: {days}} = getSummerInfo();
+
     try {
       // removing command's executor message
       vk.removeMessageTimeout({
@@ -116,26 +120,43 @@ function startPolling(connection) {
         type: 'user',
       });
 
-      const {name, requiredArgs, usingInfo, isGroupOnly, isInPMOnly, isAdminOnly, isHidden, continuteBanned} = command;
+      const {name, requiredArgs, usingInfo, isGroupOnly, isInPMOnly, isAdminOnly, isHidden, continuteBanned, cannotUseWhileSummer} = command;
       const isGroup = peerId > 2000000000;
       const isPM = peerId < 2000000000;
       if (!isHidden) {
+        if (cannotUseWhileSummer && isNowSummer) {
+          const messages = [
+            `Разве летом нужно использовать эту команду? Как никак до конца лета ${days} дней осталось, занялся бы чем-то полезным.`,
+            `лучше бы к оге еге готовился, а не команды такие летом использовал!!! имей ввиду осталось ${days} дней`,
+            `Лучше бы к еге и оге готовился, а не команды всякие летом использовал! имей ввиду осталось ${days} дней епта`,
+            'Не используй данную аудиовидео команду в летний период, пожалуйста',
+            'не надо летом такие команды использовать',
+            `а может лучше не писать такие слова в летнее время??? лучше бы время поберёг, осталось всего-то ${days} дней`,
+          ];
+
+          return vk.sendMessage({
+            message: messages[Math.floor(Math.random() * messages.length)],
+            peerId,
+          });
+        }
+
         if (isAdminOnly) {
           if (peerId != ADMIN_CHAT_ID) return false;
         }
+
         if (isGroupOnly && !isGroup) {
-          vk.sendMessage({
+          return vk.sendMessage({
             message: 'Эта команда работает только в беседе.',
             peerId,
           });
         }
+
         if (isInPMOnly) {
           if (!isPM) {
-            vk.sendMessage({
+            return vk.sendMessage({
               message: 'Эта команда работает только в личных сообщениях.',
               peerId,
             });
-            return false;
           }
         }
       }

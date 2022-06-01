@@ -23,6 +23,7 @@ async function getDataFromNetCity({vk, classes, peerId, IS_DEBUG = false, isGrou
 
     // Break if no data
     if (!data) {
+      // console.log();
       return classes.setLastScheduleUpdateStatus(peerId, false);
     };
 
@@ -35,12 +36,12 @@ async function getDataFromNetCity({vk, classes, peerId, IS_DEBUG = false, isGrou
 
     // Parsing schedule
     const newSchedule = await Promise.all(data.schedule.map(async (scheduleFile) => {
-      const {filename, status} = scheduleFile;
+      const {filename, status, error} = scheduleFile;
       if (!status) {
         return {
           filename,
           status,
-          error: error.message || error || 'Неопознанная ошибка',
+          error: error.message || error || 'Неизвестная ошибка',
         };
       };
 

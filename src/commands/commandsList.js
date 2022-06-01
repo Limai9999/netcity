@@ -44,5 +44,6 @@ module.exports = {
   isHiddenFromList: false,
   continuteBanned: false,
   showInAdditionalMenu: true,
+  cannotUseWhileSummer: false,
   execute: commandsList,
 };

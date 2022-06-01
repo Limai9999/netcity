@@ -26,5 +26,6 @@ module.exports = {
   isHiddenFromList: false,
   continuteBanned: false,
   showInAdditionalMenu: true,
+  cannotUseWhileSummer: true,
   execute: setNetCity,
 };

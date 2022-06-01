@@ -4,7 +4,6 @@ const puppeteer = require('puppeteer');
 const {readFileSync} = require('fs');
 
 async function getGradesFromNetCity({login, password, isDebug}) {
-  return false;
   if (isDebug) {
     console.log('debug grades');
     const debugData = JSON.parse(readFileSync('./src/modules/netcity/gradesDebugData.json'));

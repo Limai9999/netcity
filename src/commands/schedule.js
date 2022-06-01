@@ -4,7 +4,7 @@ moment.locale('ru');
 
 const {Keyboard} = require('vk-io');
 
-async function schedule({vk, classes, args = [], peerId, userId, payload, banned, isGroup}) {
+async function schedule({vk, classes, peerId, userId, payload, banned, isGroup}) {
   try {
     if (banned.banned) {
       await vk.removeAllLastSentMessages(peerId);
@@ -237,5 +237,6 @@ module.exports = {
   isAdminOnly: false,
   isHiddenFromList: false,
   continuteBanned: true,
+  cannotUseWhileSummer: true,
   execute: schedule,
 };

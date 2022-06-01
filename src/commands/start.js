@@ -18,5 +18,6 @@ module.exports = {
   isHiddenFromList: true,
   continuteBanned: false,
   showInAdditionalMenu: false,
+  cannotUseWhileSummer: false,
   execute: start,
 };
